@@ -1,0 +1,135 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------------------
+   RuralCare AI design tokens.
+   Calm clinical palette for everyday care; a separate loud palette for
+   emergencies only. High contrast and large type for low-literacy users on
+   cheap phone screens in daylight.
+--------------------------------------------------------------------------- */
+@theme {
+  --font-sans:
+    'Segoe UI', system-ui, -apple-system, 'Noto Sans Devanagari', 'Nirmala UI', sans-serif;
+
+  --color-ink-900: #0b1f24;
+  --color-ink-700: #234047;
+  --color-ink-500: #4d6b72;
+  --color-ink-300: #8ea6ab;
+
+  --color-care-50: #ecfbf7;
+  --color-care-100: #d0f5ec;
+  --color-care-200: #a2e9da;
+  --color-care-300: #6bd6c3;
+  --color-care-500: #14a08a;
+  --color-care-600: #0f766e;
+  --color-care-700: #0b5b58;
+  --color-care-900: #063734;
+
+  --color-sos-50: #fef2f2;
+  --color-sos-100: #fee2e2;
+  --color-sos-200: #fecaca;
+  --color-sos-500: #ef4444;
+  --color-sos-600: #dc2626;
+  --color-sos-700: #b91c1c;
+
+  --color-warn-50: #fffbeb;
+  --color-warn-100: #fef3c7;
+  --color-warn-500: #f59e0b;
+  --color-warn-700: #b45309;
+
+  --color-ok-50: #f0fdf4;
+  --color-ok-100: #dcfce7;
+  --color-ok-500: #22c55e;
+  --color-ok-700: #15803d;
+
+  --color-info-50: #eff6ff;
+  --color-info-100: #dbeafe;
+  --color-info-500: #3b82f6;
+  --color-info-700: #1d4ed8;
+
+  --color-canvas: #f6f8f8;
+  --color-surface: #ffffff;
+  --color-hairline: #dde7e8;
+
+  --radius-card: 14px;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-canvas);
+    color: var(--color-ink-900);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Visible focus everywhere - keyboard users must never lose their place. */
+  :focus-visible {
+    outline: 3px solid var(--color-care-600);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+}
+
+/* Emergency mode: the only place we allow an attention-grabbing pulse. */
+@keyframes sos-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(220 38 38 / 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgb(220 38 38 / 0);
+  }
+}
+
+.sos-pulse {
+  animation: sos-pulse 1.8s ease-out infinite;
+}
+
+@keyframes rc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rc-spin {
+  animation: rc-spin 0.9s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sos-pulse,
+  .rc-spin {
+    animation: none;
+  }
+}
