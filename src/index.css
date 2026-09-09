@@ -1,61 +1,132 @@
 @import 'tailwindcss';
 
 /* ---------------------------------------------------------------------------
-   RuralCare AI design tokens.
-   Calm clinical palette for everyday care; a separate loud palette for
-   emergencies only. High contrast and large type for low-literacy users on
-   cheap phone screens in daylight.
+   RuralCare AI design system.
+
+   One token set drives the whole product: a calm clinical palette built on a
+   deep navy ink scale and a healthcare teal accent, with status colour used
+   sparingly and only for meaning. A separate loud red palette is reserved for
+   emergencies.
+
+   Constraints that shaped these values:
+     - high contrast and generous type for low-literacy users reading a cheap
+       phone screen in daylight
+     - no web fonts, no icon fonts, no chart library: everything ships in the
+       first payload for 2G/3G networks
+     - status is never carried by colour alone
 --------------------------------------------------------------------------- */
 @theme {
+  /* ---- Type ------------------------------------------------------------ */
   --font-sans:
-    'Segoe UI', system-ui, -apple-system, 'Noto Sans Devanagari', 'Nirmala UI', sans-serif;
+    'Inter', 'Inter var', 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system,
+    'Noto Sans Devanagari', 'Nirmala UI', 'Helvetica Neue', sans-serif;
+  --font-numeric:
+    'Inter', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
 
-  --color-ink-900: #0b1f24;
-  --color-ink-700: #234047;
-  --color-ink-500: #4d6b72;
-  --color-ink-300: #8ea6ab;
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
 
-  --color-care-50: #ecfbf7;
-  --color-care-100: #d0f5ec;
-  --color-care-200: #a2e9da;
-  --color-care-300: #6bd6c3;
-  --color-care-500: #14a08a;
-  --color-care-600: #0f766e;
-  --color-care-700: #0b5b58;
-  --color-care-900: #063734;
+  /* ---- Ink: text, navigation, shell ----------------------------------- */
+  --color-ink-950: #060f18;
+  --color-ink-900: #0c1c2b;
+  --color-ink-800: #14293b;
+  --color-ink-700: #2f4459;
+  --color-ink-600: #445b72;
+  --color-ink-500: #61778f;
+  --color-ink-400: #8b9db1;
+  --color-ink-300: #b4c2d1;
+  --color-ink-200: #d8e1ea;
+  --color-ink-100: #ecf1f6;
 
-  --color-sos-50: #fef2f2;
-  --color-sos-100: #fee2e2;
-  --color-sos-200: #fecaca;
-  --color-sos-500: #ef4444;
-  --color-sos-600: #dc2626;
-  --color-sos-700: #b91c1c;
+  /* ---- Care: primary healthcare teal ---------------------------------- */
+  --color-care-50: #f0fbf9;
+  --color-care-100: #d5f3ee;
+  --color-care-200: #a9e6dc;
+  --color-care-300: #6fd2c5;
+  --color-care-400: #33b6a7;
+  --color-care-500: #14998c;
+  --color-care-600: #0c7c72;
+  --color-care-700: #0a625b;
+  --color-care-800: #094e49;
+  --color-care-900: #05332f;
 
-  --color-warn-50: #fffbeb;
-  --color-warn-100: #fef3c7;
-  --color-warn-500: #f59e0b;
-  --color-warn-700: #b45309;
+  /* ---- Emergency ------------------------------------------------------- */
+  --color-sos-50: #fef3f2;
+  --color-sos-100: #fee3e1;
+  --color-sos-200: #fecac7;
+  --color-sos-300: #fca9a5;
+  --color-sos-500: #e8443b;
+  --color-sos-600: #d32d24;
+  --color-sos-700: #ab211b;
+  --color-sos-900: #6b1512;
 
-  --color-ok-50: #f0fdf4;
-  --color-ok-100: #dcfce7;
-  --color-ok-500: #22c55e;
-  --color-ok-700: #15803d;
+  /* ---- Warning --------------------------------------------------------- */
+  --color-warn-50: #fffaeb;
+  --color-warn-100: #fef0c7;
+  --color-warn-200: #fde68a;
+  --color-warn-500: #f0a323;
+  --color-warn-600: #d4880f;
+  --color-warn-700: #a35c07;
 
+  /* ---- Success --------------------------------------------------------- */
+  --color-ok-50: #f0fdf5;
+  --color-ok-100: #dcfce8;
+  --color-ok-200: #bbf7d1;
+  --color-ok-500: #22a55c;
+  --color-ok-600: #16874a;
+  --color-ok-700: #12693d;
+
+  /* ---- Informational (professional blue) ------------------------------- */
   --color-info-50: #eff6ff;
   --color-info-100: #dbeafe;
-  --color-info-500: #3b82f6;
-  --color-info-700: #1d4ed8;
+  --color-info-200: #bfdbfe;
+  --color-info-500: #3277e0;
+  --color-info-600: #2260c9;
+  --color-info-700: #1c4da3;
 
-  --color-canvas: #f6f8f8;
+  /* ---- Surfaces -------------------------------------------------------- */
+  --color-canvas: #f4f7f9;
+  --color-canvas-alt: #eef3f7;
   --color-surface: #ffffff;
-  --color-hairline: #dde7e8;
+  --color-surface-muted: #fafcfd;
+  --color-hairline: #e4eaf0;
+  --color-hairline-strong: #ccd7e2;
 
-  --radius-card: 14px;
+  /* Application shell (dark variant, used for staff roles) */
+  --color-shell: #0c1c2b;
+  --color-shell-hi: #16293b;
+  --color-shell-line: #22384c;
+
+  /* ---- Radii ----------------------------------------------------------- */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-card: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+
+  /* ---- Elevation ------------------------------------------------------- */
+  --shadow-xs: 0 1px 2px 0 rgb(12 28 43 / 0.04);
+  --shadow-sm: 0 1px 2px 0 rgb(12 28 43 / 0.04), 0 1px 3px 0 rgb(12 28 43 / 0.05);
+  --shadow-md:
+    0 1px 2px 0 rgb(12 28 43 / 0.04), 0 6px 16px -6px rgb(12 28 43 / 0.1);
+  --shadow-lg:
+    0 2px 4px -2px rgb(12 28 43 / 0.06), 0 14px 32px -10px rgb(12 28 43 / 0.16);
+  --shadow-xl:
+    0 4px 8px -4px rgb(12 28 43 / 0.08), 0 24px 56px -16px rgb(12 28 43 / 0.22);
+  --shadow-focus: 0 0 0 3px rgb(12 124 114 / 0.22);
+
+  /* ---- Motion ---------------------------------------------------------- */
+  --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 280ms;
 }
 
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
   }
 
   body {
@@ -63,16 +134,24 @@
     background: var(--color-canvas);
     color: var(--color-ink-900);
     font-family: var(--font-sans);
-    font-size: 16px;
-    line-height: 1.5;
+    font-size: 15px;
+    line-height: 1.55;
+    letter-spacing: -0.006em;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   /* Visible focus everywhere - keyboard users must never lose their place. */
   :focus-visible {
-    outline: 3px solid var(--color-care-600);
+    outline: 2px solid var(--color-care-600);
     outline-offset: 2px;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* On the dark shell the teal ring loses contrast, so use white there. */
+  .shell-dark :focus-visible {
+    outline-color: #ffffff;
   }
 
   button,
@@ -81,14 +160,60 @@
   textarea {
     font: inherit;
     color: inherit;
+    letter-spacing: inherit;
   }
 
   h1,
   h2,
   h3,
   h4 {
-    line-height: 1.25;
+    line-height: 1.2;
+    letter-spacing: -0.021em;
     text-wrap: balance;
+    font-weight: 650;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--color-care-100);
+    color: var(--color-care-900);
+  }
+
+  /* Numbers in metrics and tables must line up column to column. */
+  .tabular-nums,
+  th,
+  td {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Discreet scrollbars - the chrome should not compete with content. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-ink-300) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-ink-200);
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-ink-300);
+    background-clip: content-box;
   }
 }
 
@@ -100,21 +225,63 @@
   .no-scrollbar {
     scrollbar-width: none;
   }
+
+  /* Eyebrow label above a page or section title. */
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* Card hover: lift, never bounce. */
+  .rc-raise {
+    transition:
+      box-shadow var(--duration-base) var(--ease-out-soft),
+      border-color var(--duration-base) var(--ease-out-soft),
+      transform var(--duration-base) var(--ease-out-soft);
+  }
+
+  .rc-raise:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-hairline-strong);
+  }
+
+  /* Subtle tinted wash used behind hero panels and the AI surface. */
+  .rc-wash {
+    background-image: radial-gradient(
+        120% 90% at 100% 0%,
+        rgb(12 124 114 / 0.06) 0%,
+        transparent 55%
+      ),
+      radial-gradient(90% 80% at 0% 0%, rgb(50 119 224 / 0.05) 0%, transparent 60%);
+  }
+
+  .rc-wash-shell {
+    background-image: radial-gradient(
+      100% 60% at 0% 0%,
+      rgb(20 153 140 / 0.16) 0%,
+      transparent 60%
+    );
+  }
 }
 
-/* Emergency mode: the only place we allow an attention-grabbing pulse. */
+/* --------------------------------------------------------------------------
+   Motion. Everything is short and small: a healthcare tool should feel
+   stable, not playful. All of it is disabled under prefers-reduced-motion.
+-------------------------------------------------------------------------- */
 @keyframes sos-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgb(220 38 38 / 0.45);
+    box-shadow: 0 0 0 0 rgb(211 45 36 / 0.4);
   }
   50% {
-    box-shadow: 0 0 0 12px rgb(220 38 38 / 0);
+    box-shadow: 0 0 0 10px rgb(211 45 36 / 0);
   }
 }
 
 .sos-pulse {
-  animation: sos-pulse 1.8s ease-out infinite;
+  animation: sos-pulse 1.9s ease-out infinite;
 }
 
 @keyframes rc-spin {
@@ -124,12 +291,111 @@
 }
 
 .rc-spin {
-  animation: rc-spin 0.9s linear infinite;
+  animation: rc-spin 0.75s linear infinite;
+}
+
+@keyframes rc-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rc-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rc-sheet-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rc-slide-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes rc-shimmer {
+  from {
+    background-position: -180% 0;
+  }
+  to {
+    background-position: 180% 0;
+  }
+}
+
+.rc-fade-in {
+  animation: rc-fade-in var(--duration-base) var(--ease-out-soft) both;
+}
+
+.rc-rise {
+  animation: rc-rise var(--duration-slow) var(--ease-out-soft) both;
+}
+
+.rc-sheet-up {
+  animation: rc-sheet-up var(--duration-slow) var(--ease-out-soft) both;
+}
+
+.rc-slide-in {
+  animation: rc-slide-in var(--duration-slow) var(--ease-out-soft) both;
+}
+
+/* Skeleton placeholder for content that is still resolving. */
+.rc-skeleton {
+  background-color: var(--color-ink-100);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(255 255 255 / 0.85) 50%,
+    transparent 100%
+  );
+  background-size: 180% 100%;
+  background-repeat: no-repeat;
+  animation: rc-shimmer 1.4s linear infinite;
+  border-radius: var(--radius-sm);
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   .sos-pulse,
-  .rc-spin {
+  .rc-spin,
+  .rc-fade-in,
+  .rc-rise,
+  .rc-sheet-up,
+  .rc-slide-in,
+  .rc-skeleton {
     animation: none;
+  }
+
+  .rc-raise {
+    transition: none;
+  }
+}
+
+@media print {
+  .rc-no-print {
+    display: none !important;
   }
 }

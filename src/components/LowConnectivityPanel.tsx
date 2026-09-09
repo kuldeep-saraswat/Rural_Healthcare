@@ -5,6 +5,7 @@ import { useDemoAction } from '@/components/DemoAction'
 import { setOfflineSimulation } from '@/services/connectivity'
 import { isEffectivelyOffline, useAppStore } from '@/store/useAppStore'
 import { ashaForPatient, currentPatient } from '@/store/selectors'
+import { Icon, IconChip } from '@/components/ui/Icon'
 
 /**
  * Low connectivity mode.
@@ -29,22 +30,27 @@ export function LowConnectivityPanel() {
   const pending = store.offlineQueue.filter((q) => q.status !== 'synced').length
 
   return (
-    <Card tone="warn">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <h2 className="text-lg font-bold text-ink-900">
+    <Card tone="warn" padding="lg">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex min-w-0 items-start gap-3">
+          <IconChip name={offline ? 'cloudOff' : 'leaf'} tone="warn" size="lg" />
+          <div className="min-w-0">
+          <h2 className="text-lg leading-snug font-semibold text-ink-900">
             {offline ? 'Offline - essential information only' : 'Low data mode'}
           </h2>
-          <p className="mt-1 text-sm text-ink-700">
+          <p className="mt-1 text-sm leading-relaxed text-ink-700">
             Showing only the essentials for {village}, from data already saved on this device.
             {pending > 0 ? ` ${pending} action(s) are queued to sync.` : ''}
           </p>
+          </div>
         </div>
-        <Badge tone={offline ? 'warn' : 'info'}>{offline ? 'Offline' : 'Low data'}</Badge>
+        <Badge tone={offline ? 'warn' : 'info'} icon={offline ? 'wifiOff' : 'leaf'}>
+          {offline ? 'Offline' : 'Low data'}
+        </Badge>
       </div>
 
       <div className="mt-4 grid gap-2 sm:grid-cols-2">
-        <LinkButton to="/emergency" tone="danger" size="lg" block icon="🚨">
+        <LinkButton to="/emergency" tone="danger" size="lg" block icon={<Icon name="siren" size={16} />}>
           Emergency
         </LinkButton>
         {asha ? (
@@ -52,7 +58,7 @@ export function LowConnectivityPanel() {
             tone="primary"
             size="lg"
             block
-            icon="📞"
+            icon={<Icon name="phone" size={16} />}
             onClick={() => {
               demo.call(asha.name, asha.phone)
             }}
@@ -60,23 +66,23 @@ export function LowConnectivityPanel() {
             Call {asha.name} (ASHA)
           </Button>
         ) : null}
-        <LinkButton to="/medications" size="lg" block icon="💊">
+        <LinkButton to="/medications" size="lg" block icon={<Icon name="pill" size={16} />}>
           My medicine reminders
         </LinkButton>
-        <LinkButton to="/records" size="lg" block icon="📋">
+        <LinkButton to="/records" size="lg" block icon={<Icon name="clipboard" size={16} />}>
           My health record
         </LinkButton>
       </div>
 
-      <div className="mt-4">
-        <h3 className="text-sm font-semibold text-ink-700">Nearest facilities (cached)</h3>
-        <ul className="mt-1 space-y-1 text-sm">
+      <div className="mt-5">
+        <h3 className="eyebrow text-ink-500">Nearest facilities (cached)</h3>
+        <ul className="mt-2 space-y-1 text-sm">
           {nearest.map((facility) => (
             <li
               key={facility.id}
-              className="flex flex-wrap items-center justify-between gap-2 border-b border-hairline pb-1 last:border-0"
+              className="flex flex-wrap items-center justify-between gap-2 border-b border-warn-200/70 py-1.5 last:border-0"
             >
-              <span className="text-ink-900">
+              <span className="font-medium text-ink-900">
                 {facility.name}
                 <span className="ml-1 text-ink-500">· {facility.distanceKm} km</span>
               </span>

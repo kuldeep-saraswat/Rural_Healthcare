@@ -14,6 +14,7 @@ import type { RecordSection } from '@/services/permissions'
 import { useAppStore } from '@/store/useAppStore'
 import { summariseRecord, DECISION_SUPPORT_DISCLAIMER } from '@/services/ai/decisionSupport'
 import { formatDate, formatDateTime } from '@/lib/utils'
+import { Icon } from '@/components/ui/Icon'
 
 /**
  * One record view, reused by the patient, the doctor and the ASHA worker.
@@ -62,7 +63,7 @@ export function PatientRecordView({
   const identity = can('identity')
   if (!identity.allowed) {
     return (
-      <Callout tone="warn" icon="🔒" title="Record not available to this account">
+      <Callout tone="warn" icon="lock" title="Record not available to this account">
         {identity.reason}
       </Callout>
     )
@@ -73,7 +74,7 @@ export function PatientRecordView({
       <Card>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="text-2xl font-bold text-ink-900">{patient.name}</h2>
+            <h2 className="text-2xl leading-tight font-bold tracking-tight text-ink-900">{patient.name}</h2>
             <p className="text-sm text-ink-700">
               {patient.age} years · {patient.gender} · {patient.village}
               {household ? ` · household ${household.code}` : ''}
@@ -115,7 +116,7 @@ export function PatientRecordView({
 
       {showSummary ? (
         <Card tone="info">
-          <h3 className="text-lg font-semibold text-ink-900">
+          <h3 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">
             AI record summary
             <span className="ml-2 align-middle text-xs font-normal text-ink-500">
               decision support only
@@ -128,11 +129,11 @@ export function PatientRecordView({
           </ul>
           {summary.openIssues.length ? (
             <div className="mt-3">
-              <h4 className="text-sm font-semibold text-ink-700">Open issues</h4>
+              <h4 className="eyebrow text-ink-400">Open issues</h4>
               <ul className="mt-1 space-y-1 text-sm text-ink-900">
                 {summary.openIssues.map((issue) => (
                   <li key={issue} className="flex gap-2">
-                    <span aria-hidden="true">⚠️</span>
+                    <Icon name="alert" size={15} className="mt-0.5 shrink-0 text-warn-600" />
                     <span>{issue}</span>
                   </li>
                 ))}
@@ -163,7 +164,7 @@ export function PatientRecordView({
 
       <TabPanel id="overview" active={tab}>
         <Card>
-          <h3 className="text-lg font-semibold text-ink-900">Care journey</h3>
+          <h3 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Care journey</h3>
           <p className="mb-3 text-sm text-ink-500">
             Every step recorded across the PHC, the referral and the higher centre.
           </p>
@@ -172,7 +173,7 @@ export function PatientRecordView({
               steps={buildJourney({ consultations, referrals, followUps })}
             />
           ) : (
-            <EmptyState icon="🧭" title="No care history yet" />
+            <EmptyState icon="compass" title="No care history yet" />
           )}
         </Card>
       </TabPanel>
@@ -225,7 +226,7 @@ export function PatientRecordView({
               ))}
             </ul>
           ) : (
-            <EmptyState icon="🩺" title="No consultations recorded" />
+            <EmptyState icon="stethoscope" title="No consultations recorded" />
           )}
         </Gate>
       </TabPanel>
@@ -270,7 +271,7 @@ export function PatientRecordView({
               ))}
             </ul>
           ) : (
-            <EmptyState icon="📝" title="No prescriptions recorded" />
+            <EmptyState icon="edit" title="No prescriptions recorded" />
           )}
         </Gate>
       </TabPanel>
@@ -313,7 +314,7 @@ export function PatientRecordView({
               ))}
             </ul>
           ) : (
-            <EmptyState icon="🔬" title="No lab reports recorded" />
+            <EmptyState icon="microscope" title="No lab reports recorded" />
           )}
         </Gate>
       </TabPanel>
@@ -350,7 +351,7 @@ export function PatientRecordView({
               ))}
             </ul>
           ) : (
-            <EmptyState icon="💉" title="No vaccination records" />
+            <EmptyState icon="syringe" title="No vaccination records" />
           )}
         </Gate>
       </TabPanel>
@@ -364,7 +365,7 @@ export function PatientRecordView({
               ))}
             </ul>
           ) : (
-            <EmptyState icon="🔁" title="No referrals recorded" />
+            <EmptyState icon="route" title="No referrals recorded" />
           )}
         </Gate>
       </TabPanel>
@@ -378,7 +379,7 @@ export function PatientRecordView({
               ))}
             </ul>
           ) : (
-            <EmptyState icon="📅" title="No follow-ups recorded" />
+            <EmptyState icon="calendar" title="No follow-ups recorded" />
           )}
         </Gate>
       </TabPanel>
@@ -425,7 +426,7 @@ export function PatientRecordView({
               ))}
             </ul>
           ) : (
-            <EmptyState icon="🩹" title="No screenings recorded" />
+            <EmptyState icon="firstAid" title="No screenings recorded" />
           )}
         </Gate>
       </TabPanel>
@@ -447,7 +448,7 @@ function Gate({
   if (access.allowed) return <>{children}</>
   if (block) {
     return (
-      <Callout tone="neutral" icon="🔒" title={`${label} hidden`}>
+      <Callout tone="neutral" icon="lock" title={`${label} hidden`}>
         {access.reason}
       </Callout>
     )
@@ -455,8 +456,7 @@ function Gate({
   return (
     <div className="text-sm text-ink-500">
       <span className="font-semibold">{label}: </span>
-      <span aria-hidden="true">🔒 </span>
-      hidden ({access.reason})
+      <Icon name="lock" size={14} className="inline-block align-[-2px]" /> hidden ({access.reason})
     </div>
   )
 }

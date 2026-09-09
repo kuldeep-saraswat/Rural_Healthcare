@@ -7,8 +7,17 @@ import { useDemoAction } from '@/components/DemoAction'
 import { useAppStore } from '@/store/useAppStore'
 import { campSlotsLeft } from '@/store/selectors'
 import { formatClock, formatDate } from '@/lib/utils'
+import { Icon } from '@/components/ui/Icon'
+import type { IconName } from '@/components/ui/Icon'
 
-const ALERT_ICON = { outbreak: '⚠️', weather: '🌦️', advisory: 'ℹ️' } as const
+const ALERT_ICON = { outbreak: 'alert', weather: 'droplet', advisory: 'info' } as const satisfies
+  Record<HealthAlert['kind'], IconName>
+
+const ALERT_ICON_TONE = {
+  danger: 'text-sos-600',
+  warn: 'text-warn-600',
+  info: 'text-info-600',
+} as const
 
 export function AlertCard({
   alert,
@@ -24,11 +33,9 @@ export function AlertCard({
     <Card as="li" className="list-none" tone={tone}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span aria-hidden="true" className="text-xl">
-              {ALERT_ICON[alert.kind]}
-            </span>
-            <h3 className="text-lg font-bold text-ink-900">{alert.title}</h3>
+          <div className="flex items-center gap-2.5">
+            <Icon name={ALERT_ICON[alert.kind]} size={20} className={ALERT_ICON_TONE[tone]} />
+            <h3 className="text-lg leading-snug font-semibold text-ink-900">{alert.title}</h3>
           </div>
           <p className="mt-0.5 text-sm text-ink-500">
             Areas: {alert.areas.join(', ')} · issued {formatDate(alert.createdAt)} · valid till{' '}
@@ -45,13 +52,13 @@ export function AlertCard({
 
       {!compact ? (
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <AlertList title="Precautions" items={alert.precautions} icon="✓" />
-          <AlertList title="Symptoms to watch" items={alert.symptomsToWatch} icon="•" />
-          <AlertList title="What to do" items={alert.whatToDo} icon="→" />
-          <AlertList title="What to avoid" items={alert.whatToAvoid} icon="✕" />
+          <AlertList title="Precautions" items={alert.precautions} marker="do" />
+          <AlertList title="Symptoms to watch" items={alert.symptomsToWatch} marker="watch" />
+          <AlertList title="What to do" items={alert.whatToDo} marker="next" />
+          <AlertList title="What to avoid" items={alert.whatToAvoid} marker="avoid" />
         </div>
       ) : (
-        <AlertList title="Precautions" items={alert.precautions.slice(0, 3)} icon="✓" />
+        <AlertList title="Precautions" items={alert.precautions.slice(0, 3)} marker="do" />
       )}
 
       <p className="mt-3 text-xs text-ink-500">
@@ -63,18 +70,33 @@ export function AlertCard({
   )
 }
 
-function AlertList({ title, items, icon }: { title: string; items: string[]; icon: string }) {
+/** Markers carry meaning, so each list gets its own icon and colour. */
+const MARKERS = {
+  do: { icon: 'check', className: 'text-ok-600' },
+  avoid: { icon: 'close', className: 'text-sos-600' },
+  watch: { icon: 'eye', className: 'text-warn-600' },
+  next: { icon: 'arrowRight', className: 'text-info-600' },
+} as const satisfies Record<string, { icon: IconName; className: string }>
+
+function AlertList({
+  title,
+  items,
+  marker,
+}: {
+  title: string
+  items: string[]
+  marker: keyof typeof MARKERS
+}) {
   if (!items.length) return null
+  const { icon, className } = MARKERS[marker]
   return (
     <div>
-      <h4 className="text-sm font-semibold text-ink-700">{title}</h4>
-      <ul className="mt-1 space-y-1 text-sm text-ink-900">
+      <h4 className="eyebrow text-ink-400">{title}</h4>
+      <ul className="mt-1.5 space-y-1.5 text-sm text-ink-800">
         {items.map((item) => (
           <li key={item} className="flex gap-2">
-            <span aria-hidden="true" className="text-ink-500">
-              {icon}
-            </span>
-            <span>{item}</span>
+            <Icon name={icon} size={15} strokeWidth={2.2} className={`mt-0.5 ${className}`} />
+            <span className="leading-relaxed">{item}</span>
           </li>
         ))}
       </ul>
@@ -84,10 +106,10 @@ function AlertList({ title, items, icon }: { title: string; items: string[]; ico
 
 const WEATHER_META: Record<
   WeatherCondition,
-  { icon: string; title: string; precautions: string[] }
+  { icon: IconName; title: string; precautions: string[] }
 > = {
   heat: {
-    icon: '☀️',
+    icon: 'sun',
     title: 'HEAT ALERT',
     precautions: [
       'Drink sufficient water through the day',
@@ -97,7 +119,7 @@ const WEATHER_META: Record<
     ],
   },
   rain: {
-    icon: '🌧️',
+    icon: 'droplet',
     title: 'RAIN / FLOOD HEALTH ALERT',
     precautions: [
       'Avoid contaminated water',
@@ -107,7 +129,7 @@ const WEATHER_META: Record<
     ],
   },
   flood: {
-    icon: '🌊',
+    icon: 'droplet',
     title: 'FLOOD HEALTH ALERT',
     precautions: [
       'Do not wade through flood water',
@@ -117,7 +139,7 @@ const WEATHER_META: Record<
     ],
   },
   cold: {
-    icon: '❄️',
+    icon: 'thermometer',
     title: 'COLD WAVE HEALTH ALERT',
     precautions: [
       'Keep elderly people and infants warm',
@@ -126,7 +148,7 @@ const WEATHER_META: Record<
     ],
   },
   normal: {
-    icon: '🌤️',
+    icon: 'sun',
     title: 'NORMAL CONDITIONS',
     precautions: ['No special weather precaution needed today'],
   },
@@ -139,11 +161,18 @@ export function EnvironmentCard({ reading }: { reading: EnvironmentReading }) {
     <Card as="li" className="list-none" tone={tone}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <div className="flex items-center gap-2">
-            <span aria-hidden="true" className="text-2xl">
-              {meta.icon}
+          <div className="flex items-center gap-2.5">
+            <span
+              aria-hidden="true"
+              className={`inline-flex h-9 w-9 items-center justify-center rounded-sm ring-1 ring-inset ${
+                tone === 'warn'
+                  ? 'bg-warn-100 text-warn-700 ring-warn-200'
+                  : 'bg-care-50 text-care-700 ring-care-100'
+              }`}
+            >
+              <Icon name={meta.icon} size={19} />
             </span>
-            <h3 className="text-lg font-bold text-ink-900">{meta.title}</h3>
+            <h3 className="text-lg leading-snug font-semibold text-ink-900">{meta.title}</h3>
           </div>
           <p className="mt-1 text-sm text-ink-700">
             {reading.village} · {reading.temperatureC}°C · humidity {reading.humidityPct}% · rainfall{' '}
@@ -153,7 +182,7 @@ export function EnvironmentCard({ reading }: { reading: EnvironmentReading }) {
         </div>
         <DemoBadge label="Demo weather data" />
       </div>
-      <AlertList title="Precautions" items={meta.precautions} icon="✓" />
+      <AlertList title="Precautions" items={meta.precautions} marker="do" />
       <p className="mt-3 text-xs text-ink-500">
         Weather values are fixed demo readings. A real deployment would read a live weather service
         for the village.
@@ -189,7 +218,7 @@ export function CampCard({
     <Card as="li" className="list-none">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <h3 className="text-lg font-semibold text-ink-900">{camp.name}</h3>
+          <h3 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">{camp.name}</h3>
           <p className="text-sm text-ink-700">
             {camp.village} · {camp.distanceKm} km · {formatDate(camp.date)}
           </p>
@@ -221,13 +250,11 @@ export function CampCard({
       </div>
 
       <div className="mt-3">
-        <h4 className="text-sm font-semibold text-ink-700">Services</h4>
+        <h4 className="eyebrow text-ink-400">Services</h4>
         <ul className="mt-1 grid gap-1 text-sm text-ink-900 sm:grid-cols-2">
           {camp.services.map((service) => (
             <li key={service} className="flex gap-2">
-              <span aria-hidden="true" className="text-ok-700">
-                ✓
-              </span>
+              <Icon name="check" size={15} strokeWidth={2.4} className="mt-0.5 text-ok-600" />
               {service}
             </li>
           ))}
@@ -239,7 +266,7 @@ export function CampCard({
           <Button
             tone="primary"
             size="lg"
-            icon="📝"
+            icon={<Icon name="edit" size={16} />}
             disabled={slotsLeft === 0 || camp.status === 'completed'}
             onClick={onRegister}
           >
@@ -253,7 +280,7 @@ export function CampCard({
         ) : null}
         <Button
           size="lg"
-          icon="🧭"
+          icon={<Icon name="compass" size={16} />}
           onClick={() => {
             demo.directions(camp.name, `${camp.village} (demo camp venue)`)
           }}
@@ -263,7 +290,7 @@ export function CampCard({
         {asha ? (
           <Button
             size="lg"
-            icon="📞"
+            icon={<Icon name="phone" size={16} />}
             onClick={() => {
               demo.call(`${asha.name} (ASHA)`, asha.phone)
             }}

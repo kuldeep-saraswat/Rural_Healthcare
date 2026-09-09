@@ -7,6 +7,8 @@ import { Meter } from '@/components/ui/Charts'
 import { useDemoAction } from '@/components/DemoAction'
 import { useAppStore } from '@/store/useAppStore'
 import { useT } from '@/services/i18n'
+import { Icon, IconChip } from '@/components/ui/Icon'
+import type { IconName } from '@/components/ui/Icon'
 
 export const FACILITY_TYPE_LABEL: Record<FacilityType, string> = {
   phc: 'Primary Health Centre',
@@ -18,14 +20,14 @@ export const FACILITY_TYPE_LABEL: Record<FacilityType, string> = {
   kiosk: 'Health Kiosk',
 }
 
-export const FACILITY_TYPE_ICON: Record<FacilityType, string> = {
-  phc: '🏥',
-  chc: '🏩',
-  district_hospital: '🏨',
-  medical_college: '🎓',
-  diagnostic_centre: '🔬',
-  pharmacy: '💊',
-  kiosk: '🖥️',
+export const FACILITY_TYPE_ICON: Record<FacilityType, IconName> = {
+  phc: 'clinic',
+  chc: 'hospital',
+  district_hospital: 'hospital',
+  medical_college: 'book',
+  diagnostic_centre: 'microscope',
+  pharmacy: 'pill',
+  kiosk: 'kiosk',
 }
 
 export function FacilityCard({
@@ -50,11 +52,9 @@ export function FacilityCard({
     <Card as="li" className="list-none">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span aria-hidden="true" className="text-xl">
-              {FACILITY_TYPE_ICON[facility.type]}
-            </span>
-            <h3 className="text-lg font-semibold text-ink-900">{facility.name}</h3>
+          <div className="flex items-center gap-2.5">
+            <IconChip name={FACILITY_TYPE_ICON[facility.type]} tone="care" size="sm" />
+            <h3 className="text-lg leading-snug font-semibold text-ink-900">{facility.name}</h3>
           </div>
           <p className="mt-0.5 text-sm text-ink-700">
             {FACILITY_TYPE_LABEL[facility.type]} · {facility.village} · {facility.distanceKm} km
@@ -112,7 +112,7 @@ export function FacilityCard({
       <div className="mt-4 flex flex-wrap gap-2">
         <Button
           size="lg"
-          icon="📞"
+          icon={<Icon name="phone" size={16} />}
           onClick={() => {
             demo.call(facility.name, facility.phone)
           }}
@@ -121,7 +121,7 @@ export function FacilityCard({
         </Button>
         <Button
           size="lg"
-          icon="🧭"
+          icon={<Icon name="compass" size={16} />}
           onClick={() => {
             demo.directions(facility.name, facility.address)
           }}
@@ -130,7 +130,7 @@ export function FacilityCard({
         </Button>
         <Link
           to={`/nearby?facility=${facility.id}`}
-          className="inline-flex min-h-13 items-center rounded-card px-3 text-sm font-medium text-care-700 underline hover:bg-care-50"
+          className="inline-flex min-h-12 items-center gap-1.5 rounded-card px-3 text-[15px] font-semibold text-care-700 transition-colors hover:bg-care-50"
         >
           Full details
         </Link>
@@ -155,7 +155,7 @@ export function AmbulanceCard({
     <Card as="li" className="list-none" tone={available ? 'danger' : 'default'}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h3 className="text-lg font-bold text-ink-900">{ambulance.code}</h3>
+          <h3 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">{ambulance.code}</h3>
           <p className="text-sm text-ink-700">
             Driver {ambulance.driverName} · {ambulance.village}
           </p>
@@ -187,7 +187,7 @@ export function AmbulanceCard({
         ) : null}
         <Button
           size="lg"
-          icon="📞"
+          icon={<Icon name="phone" size={16} />}
           onClick={() => {
             demo.call(ambulance.code, ambulance.phone)
           }}
@@ -211,7 +211,7 @@ export function KioskCard({
     <Card as="li" className="list-none">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h3 className="text-lg font-semibold text-ink-900">{facility.name}</h3>
+          <h3 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">{facility.name}</h3>
           <p className="text-sm text-ink-700">
             {facility.village} · {facility.distanceKm} km · {facility.timings}
           </p>
@@ -221,9 +221,7 @@ export function KioskCard({
       <ul className="mt-3 space-y-1 text-sm text-ink-900">
         {(facility.kioskServices ?? facility.services).map((service) => (
           <li key={service} className="flex gap-2">
-            <span aria-hidden="true" className="text-ok-700">
-              ✓
-            </span>
+            <Icon name="check" size={15} strokeWidth={2.4} className="mt-0.5 text-ok-600" />
             {service}
           </li>
         ))}
@@ -231,13 +229,13 @@ export function KioskCard({
       {facility.notes ? <p className="mt-2 text-sm text-ink-500">{facility.notes}</p> : null}
       <div className="mt-4 flex flex-wrap gap-2">
         {onStart ? (
-          <Button tone="primary" size="lg" onClick={onStart} icon="🤝">
+          <Button tone="primary" size="lg" onClick={onStart} icon={<Icon name="stethoscope" size={16} />}>
             Start Assisted Consultation
           </Button>
         ) : null}
         <Button
           size="lg"
-          icon="🧭"
+          icon={<Icon name="compass" size={16} />}
           onClick={() => {
             demo.directions(facility.name, facility.address)
           }}
@@ -256,7 +254,7 @@ export function AshaCard({ asha }: { asha: AshaWorker }) {
     <Card as="li" className="list-none">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h3 className="text-lg font-semibold text-ink-900">{asha.name}</h3>
+          <h3 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">{asha.name}</h3>
           <p className="text-sm text-ink-700">ASHA Worker · {asha.village}</p>
           <p className="text-sm text-ink-500">
             {asha.distanceKm} km away · covers {asha.villagesCovered.join(', ')}
@@ -270,7 +268,7 @@ export function AshaCard({ asha }: { asha: AshaWorker }) {
         <Button
           tone="primary"
           size="lg"
-          icon="📞"
+          icon={<Icon name="phone" size={16} />}
           onClick={() => {
             demo.call(asha.name, asha.phone)
           }}
@@ -279,7 +277,7 @@ export function AshaCard({ asha }: { asha: AshaWorker }) {
         </Button>
         <Button
           size="lg"
-          icon="💬"
+          icon={<Icon name="send" size={16} />}
           onClick={() => {
             demo.message(asha.name, asha.phone)
           }}

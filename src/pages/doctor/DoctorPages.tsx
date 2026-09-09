@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Badge, RiskBadge } from '@/components/ui/Badge'
 import { Button, LinkButton } from '@/components/ui/Button'
-import { Card, SectionHeading, StatTile } from '@/components/ui/Card'
+import { Card, SectionHeading, StatTile, PageHeader, StatGrid } from '@/components/ui/Card'
 import { Callout } from '@/components/ui/Callout'
 import { EmptyState } from '@/components/ui/States'
 import { TableWrap, Td, Th, Tr } from '@/components/ui/Table'
@@ -39,33 +39,46 @@ export function DoctorDashboardPage() {
   const risks = followUpRisks(store).filter((r) => r.followUp.doctorId === user.doctorId)
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub={user.subtitle}>Doctor dashboard</SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="dashboard"
+        eyebrow="Clinical console"
+        title="Doctor dashboard"
+        description={user.subtitle}
+      />
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile label="Authorised patients" value={patients.length} />
-        <StatTile label="Consultations by me" value={myConsultations.length} />
+      <StatGrid>
+        <StatTile label="Authorised patients" value={patients.length} icon="users" />
+        <StatTile
+          label="Consultations by me"
+          value={myConsultations.length}
+          icon="stethoscope"
+        />
         <StatTile
           label="Incoming referrals"
           value={incoming.length}
+          icon="route"
           tone={incoming.length ? 'info' : 'default'}
+          to="/doctor/referrals"
         />
         <StatTile
           label="Emergency cases"
           value={emergencies.length}
+          icon="siren"
           tone={emergencies.length ? 'danger' : 'default'}
+          to="/doctor/emergencies"
         />
-      </div>
+      </StatGrid>
 
       {pendingNotes.length ? (
-        <Callout tone="warn" icon="📝" title={`${pendingNotes.length} consultation(s) need your notes`}>
+        <Callout tone="warn" icon="edit" title={`${pendingNotes.length} consultation(s) need your notes`}>
           A simulated teleconsultation was recorded. Open the patient to add your assessment,
           prescription, referral or follow-up.
         </Callout>
       ) : null}
 
       {risks.length ? (
-        <Callout tone="info" icon="🧭" title="Follow-up risk (decision support)">
+        <Callout tone="info" icon="compass" title="Follow-up risk (decision support)">
           {risks
             .slice(0, 3)
             .map((risk) => `${risk.patient?.name ?? 'Patient'} - ${risk.reason}`)
@@ -137,7 +150,7 @@ export function DoctorDashboardPage() {
           </TableWrap>
         ) : (
           <EmptyState
-            icon="🧑‍⚕️"
+            icon="doctor"
             title="No authorised patients"
             body="A patient appears here once you consult them, or once they are referred to your facility."
           />
@@ -161,10 +174,13 @@ export function DoctorEmergenciesPage() {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="Cases heading to your facility, with the patient summary that arrived with the alert.">
-        Emergency cases
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="siren"
+        eyebrow="Clinical work"
+        title="Emergency cases"
+        description="Cases heading to your facility, with the patient summary that arrived with the alert."
+      />
 
       {cases.length ? (
         <ul className="space-y-3">
@@ -177,7 +193,7 @@ export function DoctorEmergenciesPage() {
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
-                  <h3 className="text-lg font-bold text-ink-900">
+                  <h3 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">
                     {request.patientName}, {request.patientAge}
                   </h3>
                   <p className="text-sm text-ink-500">
@@ -201,7 +217,7 @@ export function DoctorEmergenciesPage() {
         </ul>
       ) : (
         <EmptyState
-          icon="🚑"
+          icon="ambulance"
           title="No emergency cases"
           body="An emergency request raised by a patient or ASHA worker appears here once your facility is the destination."
         />
@@ -236,10 +252,13 @@ export function DoctorReferralsPage() {
   }
 
   return (
-    <div className="space-y-5">
-      <SectionHeading sub="Referrals sent to you, and referrals you have created.">
-        Referrals
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="route"
+        eyebrow="Clinical work"
+        title="Referrals"
+        description="Referrals sent to you, and referrals you have created."
+      />
 
       <section aria-labelledby="in-ref">
         <SectionHeading id="in-ref" sub={`${incoming.length} referral(s)`}>
@@ -310,7 +329,7 @@ export function DoctorReferralsPage() {
             ))}
           </ul>
         ) : (
-          <EmptyState icon="🔁" title="No incoming referrals" />
+          <EmptyState icon="route" title="No incoming referrals" />
         )}
       </section>
 
@@ -338,7 +357,7 @@ export function DoctorReferralsPage() {
             ))}
           </ul>
         ) : (
-          <EmptyState icon="🔁" title="You have not created any referral yet" />
+          <EmptyState icon="route" title="You have not created any referral yet" />
         )}
       </section>
     </div>

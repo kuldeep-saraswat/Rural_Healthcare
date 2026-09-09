@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { AlertCard, EnvironmentCard } from '@/components/cards/PublicHealthCards'
 import { Badge, DemoBadge } from '@/components/ui/Badge'
 import { Button, LinkButton } from '@/components/ui/Button'
-import { Card, KeyValue, SectionHeading, StatTile } from '@/components/ui/Card'
+import { Card, KeyValue, SectionHeading, StatTile, PageHeader } from '@/components/ui/Card'
 import { Callout } from '@/components/ui/Callout'
 import { EmptyState } from '@/components/ui/States'
 import { useToast } from '@/components/ui/Toast'
@@ -32,14 +32,15 @@ export function AlertsPage() {
   const reading = store.environment.find((e) => e.village === village)
 
   return (
-    <div className="space-y-4">
-      <SectionHeading
-        sub={`Location-based precautions for ${village}. Everything here is generated inside the prototype.`}
-      >
-        Health &amp; environment alerts
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="megaphone"
+        eyebrow="Public health"
+        title="Health &amp; environment alerts"
+        description={`Location-based precautions for ${village}. Everything here is generated inside the prototype.`}
+      />
 
-      <Callout tone="neutral" icon="🧪" title="Read this first">
+      <Callout tone="neutral" icon="flask" title="Read this first">
         These are <strong>demo public-health alerts</strong> and <strong>demo weather readings</strong>.
         They are not verified outbreak reports and not official government notifications. A real
         deployment would connect a weather service and the district health authority&apos;s feed.
@@ -63,7 +64,7 @@ export function AlertsPage() {
           </ul>
         ) : (
           <EmptyState
-            icon="📢"
+            icon="megaphone"
             title="No active alert for your area"
             body="You will see a notification here if the district health office issues one."
           />
@@ -153,10 +154,13 @@ export function PreventivePage() {
   const nextCamp = upcomingCamps(store.camps).find((c) => c.village === patient?.village)
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="Only the checks that actually apply to you, with an action for each.">
-        Preventive care
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="shieldCheck"
+        eyebrow="Stay well"
+        title="Preventive care"
+        description="Only the checks that actually apply to you, with an action for each."
+      />
 
       <div className="grid gap-3 sm:grid-cols-3">
         <StatTile
@@ -171,7 +175,7 @@ export function PreventivePage() {
       {overdue.length ? (
         <Callout
           tone="warn"
-          icon="⚠️"
+          icon="alert"
           title={`${overdue.length} follow-up(s) missed`}
           actions={<LinkButton to="/follow-ups">Open follow-ups</LinkButton>}
         >
@@ -182,7 +186,7 @@ export function PreventivePage() {
 
       {dueVaccines.length ? (
         <Card tone="warn">
-          <h2 className="text-lg font-semibold text-ink-900">Vaccination due</h2>
+          <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Vaccination due</h2>
           <ul className="mt-2 space-y-1 text-[15px]">
             {dueVaccines.map((vaccine) => (
               <li key={vaccine.id} className="flex flex-wrap items-center justify-between gap-2">
@@ -241,7 +245,7 @@ export function PreventivePage() {
       {nextCamp ? (
         <Callout
           tone="info"
-          icon="⛺"
+          icon="tent"
           title={`Next camp in ${nextCamp.village}: ${formatDate(nextCamp.date)}`}
           actions={<LinkButton to="/camps">See camp details</LinkButton>}
         >
@@ -274,15 +278,18 @@ export function VillagePage() {
     village.accessLevel === 'good' ? 'ok' : village.accessLevel === 'moderate' ? 'warn' : 'danger'
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub={`Population about ${village.population.toLocaleString('en-IN')} (demo figure).`}>
-        {village.name} - village health access
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="household"
+        eyebrow="Village profile"
+        title={`${village.name} - village health access`}
+        description={`Population about ${village.population.toLocaleString('en-IN')} (demo figure).`}
+      />
 
       <Card tone={accessTone === 'ok' ? 'ok' : accessTone === 'warn' ? 'warn' : 'danger'}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold text-ink-900">Healthcare access</h2>
+            <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Healthcare access</h2>
             <p className="mt-1 text-sm text-ink-700">
               Based on distance to facilities, doctor availability and local resources in the demo
               dataset.

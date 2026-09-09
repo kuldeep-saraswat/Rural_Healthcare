@@ -319,7 +319,7 @@ describe('Scenario 14 - admin alert reaches the patient', () => {
 
     const newAlertButton = await screen.findByRole(
       'button',
-      { name: /\+ New alert/i },
+      { name: /New alert/i },
       { timeout: 4000 },
     )
     fireEvent.click(newAlertButton)
@@ -385,7 +385,7 @@ describe('Scenario 8 - ASHA offline mode through the UI', () => {
     )
     fireEvent.click(offlineToggle)
     await waitFor(() => {
-      expect(screen.getAllByText(/🟠 Offline/).length).toBeGreaterThan(0)
+      expect(screen.getAllByText(/Working offline/i).length).toBeGreaterThan(0)
     })
 
     // Save a field note while offline - it must be queued, not lost.
@@ -436,9 +436,15 @@ describe('Scenario 7 - ASHA dashboard sections', () => {
     }
     // Today's follow-up counts are surfaced on the overview.
     expect(screen.getAllByText(/Today.s follow-ups/i).length).toBeGreaterThan(0)
-    expect(screen.getAllByText(/🔴 2/).length).toBeGreaterThan(0)
-    expect(screen.getAllByText(/🟡 4/).length).toBeGreaterThan(0)
-    expect(screen.getAllByText(/🟢 8/).length).toBeGreaterThan(0)
+    // Overdue / due today / completed are shown as KPI tiles: label + count.
+    for (const [label, count] of [
+      ['Overdue', '2'],
+      ['Due today', '4'],
+      ['Completed', '8'],
+    ] as const) {
+      const tile = screen.getAllByText(label)[0].parentElement?.parentElement
+      expect(tile?.textContent, `${label} tile`).toContain(count)
+    }
     // And the referral drop-off alert.
     expect(screen.getAllByText(/referral follow-up\(s\) required/i).length).toBeGreaterThan(0)
   })

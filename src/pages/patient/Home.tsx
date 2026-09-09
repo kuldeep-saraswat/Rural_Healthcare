@@ -5,6 +5,8 @@ import { Badge, DemoBadge } from '@/components/ui/Badge'
 import { Button, LinkButton } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Callout } from '@/components/ui/Callout'
+import { Icon, IconChip } from '@/components/ui/Icon'
+import type { IconName, IconTone } from '@/components/ui/Icon'
 import { useAppStore } from '@/store/useAppStore'
 import { alertsForVillage, ashaForPatient, currentPatient, currentUser } from '@/store/selectors'
 import { buildDayDoses, nextDose } from '@/services/medications'
@@ -17,6 +19,52 @@ import { formatClock, formatDate, relativeDays } from '@/lib/utils'
  * greeting, the assistant, and the few live things that need the patient's
  * attention today. No marketing sections anywhere.
  */
+
+/** One "needs your attention today" card. Same shape for every item. */
+function TodayCard({
+  icon,
+  iconTone = 'care',
+  title,
+  primary,
+  secondary,
+  badge,
+  action,
+  tone,
+}: {
+  icon: IconName
+  iconTone?: IconTone
+  title: string
+  primary?: string
+  secondary?: React.ReactNode
+  badge?: React.ReactNode
+  action: React.ReactNode
+  tone?: 'default' | 'warn'
+}) {
+  return (
+    <Card
+      as="li"
+      tone={tone === 'warn' ? 'warn' : 'default'}
+      className="flex list-none flex-col"
+      padding="md"
+    >
+      <div className="flex items-start gap-3">
+        <IconChip name={icon} tone={tone === 'warn' ? 'warn' : iconTone} />
+        <div className="min-w-0 flex-1">
+          <h3 className="text-[13px] font-semibold tracking-wide text-ink-500 uppercase">
+            {title}
+          </h3>
+          {primary ? (
+            <p className="mt-1 text-[15px] leading-snug font-semibold text-ink-900">{primary}</p>
+          ) : null}
+          {secondary ? <div className="mt-1 text-sm text-ink-500">{secondary}</div> : null}
+          {badge ? <div className="mt-2">{badge}</div> : null}
+        </div>
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2 pt-0">{action}</div>
+    </Card>
+  )
+}
+
 export function HomePage() {
   const t = useT()
   const store = useAppStore()
@@ -47,33 +95,37 @@ export function HomePage() {
     : undefined
 
   const activeEmergency = store.emergencyRequests.find(
-    (e) =>
-      e.patientId === patient?.id &&
-      !['completed', 'no_ambulance'].includes(e.status),
+    (e) => e.patientId === patient?.id && !['completed', 'no_ambulance'].includes(e.status),
   )
 
   const asha = ashaForPatient(store.ashas, patient)
   const lowData = store.lowConnectivity
 
   return (
-    <div className="space-y-4">
-      {/* Greeting */}
-      <div className="pt-1">
-        <h1 className="text-2xl font-bold text-ink-900 sm:text-3xl">
-          👋 {t('greeting.namaste', { name: user.name.split(' ')[0] })}
+    <div className="space-y-6">
+      {/* ---- Greeting ---- */}
+      <header>
+        <p className="eyebrow text-care-700">{village}</p>
+        <h1 className="mt-1.5 text-[28px] leading-tight font-bold tracking-tight text-ink-900 sm:text-[34px]">
+          {t('greeting.namaste', { name: user.name.split(' ')[0] })}
         </h1>
-        <p className="mt-1 text-base text-ink-700 sm:text-lg">{t('home.question')}</p>
-      </div>
+        <p className="mt-1.5 text-base text-ink-600 sm:text-lg">{t('home.question')}</p>
+      </header>
 
       {lowData ? <LowConnectivityPanel /> : null}
 
       {activeEmergency ? (
         <Callout
           tone="danger"
-          icon="🚨"
+          icon="siren"
           title="An emergency request is in progress"
           actions={
-            <LinkButton to="/emergency" tone="danger" size="lg">
+            <LinkButton
+              to="/emergency"
+              tone="danger"
+              size="lg"
+              iconAfter={<Icon name="arrowRight" size={16} />}
+            >
               Open emergency mode
             </LinkButton>
           }
@@ -87,17 +139,17 @@ export function HomePage() {
       {activeAlerts.length ? (
         <Callout
           tone="warn"
-          icon="📢"
+          icon="megaphone"
           title={`${activeAlerts.length} health alert(s) for ${village}`}
           actions={
-            <LinkButton to="/alerts" size="lg">
+            <LinkButton to="/alerts" size="md">
               See precautions
             </LinkButton>
           }
         >
           <span className="flex flex-wrap items-center gap-2">
             {activeAlerts.map((alert) => (
-              <span key={alert.title} className="font-medium">
+              <span key={alert.title} className="font-medium text-ink-800">
                 {alert.title}
               </span>
             ))}
@@ -106,136 +158,124 @@ export function HomePage() {
         </Callout>
       ) : null}
 
-      {/* The assistant dominates the page */}
+      {/* ---- The assistant dominates the page ---- */}
       <AiAssistant variant="home" maxMessages={8} />
 
-      {/* Today's things that need action - not rendered at all in low data mode */}
+      {/* ---- Today's things that need action ---- */}
       {lowData ? null : (
-      <section aria-labelledby="today-heading">
-        <h2 id="today-heading" className="mb-3 text-lg font-bold text-ink-900">
-          Aaj ke liye / For you today
-        </h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {upcomingDose ? (
-            <Card>
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <h3 className="font-semibold text-ink-900">Medicine reminder</h3>
-                  <p className="mt-1 text-[15px] text-ink-900">
-                    {upcomingDose.medicineName} · {upcomingDose.dose}
-                  </p>
-                  <p className="text-sm text-ink-500">
-                    ⏰ {formatClock(upcomingDose.time)} ·{' '}
+        <section aria-labelledby="today-heading">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 id="today-heading" className="text-lg font-semibold tracking-tight text-ink-900">
+                Aaj ke liye / For you today
+              </h2>
+              <p className="mt-1 text-sm text-ink-500">
+                Only what needs you right now, from your own record.
+              </p>
+            </div>
+            <LinkButton
+              to="/records"
+              size="sm"
+              iconAfter={<Icon name="arrowRight" size={14} />}
+            >
+              Full health record
+            </LinkButton>
+          </div>
+
+          <ul className="grid list-none gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {upcomingDose ? (
+              <TodayCard
+                icon="pill"
+                title="Medicine reminder"
+                primary={`${upcomingDose.medicineName} · ${upcomingDose.dose}`}
+                secondary={
+                  <span className="inline-flex items-center gap-1.5">
+                    <Icon name="clock" size={14} />
+                    {formatClock(upcomingDose.time)} ·{' '}
                     {upcomingDose.state === 'due' ? 'Due now' : 'Upcoming'}
-                  </p>
-                </div>
-                <span aria-hidden="true" className="text-2xl">
-                  💊
-                </span>
-              </div>
-              <div className="mt-3 flex gap-2">
-                <Button
-                  tone="primary"
-                  onClick={() => {
-                    store.logDose(upcomingDose.scheduleId, upcomingDose.time, 'taken')
-                  }}
-                >
-                  {t('action.markTaken')}
-                </Button>
-                <LinkButton to="/medications">All reminders</LinkButton>
-              </div>
-            </Card>
-          ) : null}
+                  </span>
+                }
+                action={
+                  <>
+                    <Button
+                      tone="primary"
+                      icon={<Icon name="check" size={16} strokeWidth={2.4} />}
+                      onClick={() => {
+                        store.logDose(upcomingDose.scheduleId, upcomingDose.time, 'taken')
+                      }}
+                    >
+                      {t('action.markTaken')}
+                    </Button>
+                    <LinkButton to="/medications">All reminders</LinkButton>
+                  </>
+                }
+              />
+            ) : null}
 
-          {dueFollowUp ? (
-            <Card tone={bucketFollowUp(dueFollowUp) === 'overdue' ? 'warn' : 'default'}>
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <h3 className="font-semibold text-ink-900">Follow-up</h3>
-                  <p className="mt-1 text-[15px] text-ink-900">{dueFollowUp.reason}</p>
-                  <p className="text-sm text-ink-500">
-                    {formatDate(dueFollowUp.dueDate)} · {relativeDays(dueFollowUp.dueDate).label}
-                  </p>
-                </div>
-                <span aria-hidden="true" className="text-2xl">
-                  📅
-                </span>
-              </div>
-              <div className="mt-3">
-                <LinkButton to="/follow-ups" tone="primary">
-                  {t('action.viewFollowUp')}
-                </LinkButton>
-              </div>
-            </Card>
-          ) : null}
+            {dueFollowUp ? (
+              <TodayCard
+                icon="calendarCheck"
+                iconTone="info"
+                tone={bucketFollowUp(dueFollowUp) === 'overdue' ? 'warn' : 'default'}
+                title="Follow-up"
+                primary={dueFollowUp.reason}
+                secondary={`${formatDate(dueFollowUp.dueDate)} · ${relativeDays(dueFollowUp.dueDate).label}`}
+                action={
+                  <LinkButton to="/follow-ups" tone="primary">
+                    {t('action.viewFollowUp')}
+                  </LinkButton>
+                }
+              />
+            ) : null}
 
-          {activeReferral ? (
-            <Card tone={activeReferral.dropOffFlagged ? 'warn' : 'default'}>
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <h3 className="font-semibold text-ink-900">Referral in progress</h3>
-                  <p className="mt-1 text-[15px] text-ink-900">
-                    {store.facilities.find((f) => f.id === activeReferral.toFacilityId)?.name}
-                  </p>
-                  <Badge tone="info">{activeReferral.status.replace(/_/g, ' ')}</Badge>
-                </div>
-                <span aria-hidden="true" className="text-2xl">
-                  🔁
-                </span>
-              </div>
-              <div className="mt-3">
-                <LinkButton to="/referrals" tone="primary">
-                  {t('action.track')}
-                </LinkButton>
-              </div>
-            </Card>
-          ) : null}
+            {activeReferral ? (
+              <TodayCard
+                icon="route"
+                iconTone="info"
+                tone={activeReferral.dropOffFlagged ? 'warn' : 'default'}
+                title="Referral in progress"
+                primary={store.facilities.find((f) => f.id === activeReferral.toFacilityId)?.name}
+                badge={<Badge tone="info">{activeReferral.status.replace(/_/g, ' ')}</Badge>}
+                action={
+                  <LinkButton to="/referrals" tone="primary">
+                    {t('action.track')}
+                  </LinkButton>
+                }
+              />
+            ) : null}
 
-          {asha ? (
-            <Card>
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <h3 className="font-semibold text-ink-900">Your ASHA worker</h3>
-                  <p className="mt-1 text-[15px] text-ink-900">{asha.name}</p>
-                  <p className="text-sm text-ink-500">
-                    {asha.village} · {asha.distanceKm} km
-                  </p>
-                </div>
-                <span aria-hidden="true" className="text-2xl">
-                  🧑‍🤝‍🧑
-                </span>
-              </div>
-              <div className="mt-3">
-                <LinkButton to="/asha-contact" tone="primary">
-                  Contact ASHA
-                </LinkButton>
-              </div>
-            </Card>
-          ) : null}
+            {asha ? (
+              <TodayCard
+                icon="users"
+                title="Your ASHA worker"
+                primary={asha.name}
+                secondary={`${asha.village} · ${asha.distanceKm} km`}
+                action={
+                  <LinkButton
+                    to="/asha-contact"
+                    tone="primary"
+                    icon={<Icon name="phone" size={16} />}
+                  >
+                    Contact ASHA
+                  </LinkButton>
+                }
+              />
+            ) : null}
 
-          <Card>
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <h3 className="font-semibold text-ink-900">Village health access</h3>
-                <p className="mt-1 text-sm text-ink-700">
-                  See how far your PHC, CHC, hospital, kiosk and next camp are.
-                </p>
-              </div>
-              <span aria-hidden="true" className="text-2xl">
-                🏡
-              </span>
-            </div>
-            <div className="mt-3">
-              <LinkButton to="/village">Open {village} summary</LinkButton>
-            </div>
-          </Card>
-        </div>
-      </section>
+            <TodayCard
+              icon="household"
+              iconTone="neutral"
+              title="Village health access"
+              secondary="See how far your PHC, CHC, hospital, kiosk and next camp are."
+              action={<LinkButton to="/village">Open {village} summary</LinkButton>}
+            />
+          </ul>
+        </section>
       )}
 
       <p className="pb-2 text-center text-xs text-ink-500">
         Need something else?{' '}
-        <Link to="/ai" className="font-medium text-care-700 underline">
+        <Link to="/ai" className="font-semibold text-care-700 underline underline-offset-2">
           Ask the assistant
         </Link>{' '}
         — you can type or speak in Hindi, English or Marathi.

@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router-dom'
 import { DoctorCard } from '@/components/cards/DoctorCard'
-import { SectionHeading } from '@/components/ui/Card'
+import { PageHeader } from '@/components/ui/Card'
 import { Tabs } from '@/components/ui/Tabs'
 import { EmptyState } from '@/components/ui/States'
 import { LinkButton } from '@/components/ui/Button'
@@ -41,12 +41,13 @@ export function DoctorsPage() {
   const availableCount = doctors.filter((d) => d.status === 'available').length
 
   return (
-    <div className="space-y-4">
-      <SectionHeading
-        sub={`${availableCount} of ${doctors.length} doctors are marked available in the demo resource data right now.`}
-      >
-        {filter === 'emergency' ? 'Emergency doctors' : 'Available Doctors Now'}
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="doctor"
+        eyebrow="Find care"
+        title={filter === 'emergency' ? 'Emergency doctors' : 'Available Doctors Now'}
+        description={`${availableCount} of ${doctors.length} doctors are marked available in the demo resource data right now.`}
+      />
 
       <Tabs
         ariaLabel="Filter doctors"
@@ -71,7 +72,7 @@ export function DoctorsPage() {
       />
 
       {list.length ? (
-        <ul className="space-y-3">
+        <ul className="grid gap-3 xl:grid-cols-2">
           {list.map(({ doctor, facility }) => (
             <DoctorCard
               key={doctor.id}
@@ -83,7 +84,7 @@ export function DoctorsPage() {
         </ul>
       ) : (
         <EmptyState
-          icon="👨‍⚕️"
+          icon="doctor"
           title={t('empty.noDoctors')}
           body="Doctor availability is controlled from the facility and admin dashboards in this prototype. You can still visit the nearest PHC or contact your ASHA worker."
           action={
@@ -97,7 +98,7 @@ export function DoctorsPage() {
         />
       )}
 
-      <Callout tone="neutral" icon="🧪" title="Prototype only">
+      <Callout tone="neutral" icon="flask" title="Prototype only">
         Calls and video consultations are simulated. The consultation room shows how a real
         teleconsultation would work and is ready for a WebRTC implementation later.
       </Callout>

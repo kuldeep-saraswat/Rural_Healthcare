@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { RiskLevel } from '@/types'
 import { AmbulanceCard, AshaCard, FacilityCard } from '@/components/cards/FacilityCards'
 import { DoctorCard } from '@/components/cards/DoctorCard'
-import { Badge, DemoBadge, RiskBadge } from '@/components/ui/Badge'
+import { Badge, RiskBadge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card, SectionHeading } from '@/components/ui/Card'
 import { Callout } from '@/components/ui/Callout'
@@ -21,6 +21,7 @@ import {
 } from '@/store/selectors'
 import { useT } from '@/services/i18n'
 import { formatDateTime } from '@/lib/utils'
+import { Icon } from '@/components/ui/Icon'
 
 const EMERGENCY_FLOW = [
   'requested',
@@ -124,23 +125,35 @@ export function EmergencyPage() {
     : []
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Emergency mode banner - the only aggressive visual in the app */}
-      <div className="rounded-card border-2 border-sos-600 bg-sos-600 p-4 text-white sm:p-5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight sm:text-3xl">
-            <span aria-hidden="true">🚨</span> {t('emergency.title')}
-          </h1>
-          <DemoBadge label="Prototype" />
+      <div className="overflow-hidden rounded-lg bg-sos-600 shadow-md">
+        <div className="flex flex-wrap items-start justify-between gap-3 p-5 sm:p-6">
+          <div className="flex min-w-0 items-center gap-3.5">
+            <span
+              aria-hidden="true"
+              className="sos-pulse flex h-12 w-12 shrink-0 items-center justify-center rounded-card bg-white/15 text-white ring-1 ring-white/25 ring-inset"
+            >
+              <Icon name="siren" size={26} strokeWidth={2} />
+            </span>
+            <div className="min-w-0">
+              <h1 className="text-2xl leading-tight font-bold tracking-tight text-white sm:text-3xl">
+                {t('emergency.title')}
+              </h1>
+              <p className="mt-1 text-sm text-white/85">{t('emergency.subtitle')}</p>
+            </div>
+          </div>
+          <span className="shrink-0 rounded-full border border-dashed border-white/40 px-2.5 py-1 text-2xs font-bold tracking-wide text-white/85 uppercase">
+            Prototype
+          </span>
         </div>
-        <p className="mt-1 text-sm text-white/90">{t('emergency.subtitle')}</p>
       </div>
 
       {activeRequest ? (
         <Card tone="danger">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-xl font-bold text-ink-900">
+              <h2 className="text-xl leading-snug font-semibold tracking-tight text-ink-900">
                 {STATUS_LABEL[activeRequest.status]}
               </h2>
               <p className="mt-1 text-sm text-ink-700">
@@ -182,7 +195,7 @@ export function EmergencyPage() {
             <Timeline steps={steps} />
           </div>
 
-          <Callout tone="neutral" className="mt-3" icon="🧪" title="Prototype behaviour">
+          <Callout tone="neutral" className="mt-3" icon="flask" title="Prototype behaviour">
             The ambulance, hospital alert and ETA above are simulated inside this browser. No real
             ambulance has been dispatched and no hospital has been contacted.
           </Callout>
@@ -267,7 +280,7 @@ export function EmergencyPage() {
               </ul>
             ) : (
               <EmptyState
-                icon="🚑"
+                icon="ambulance"
                 title={t('emergency.none')}
                 body="Every demo ambulance is marked busy. Call the emergency hospital directly, or contact your ASHA worker for transport help."
               />
@@ -285,7 +298,7 @@ export function EmergencyPage() {
             ))}
           </ul>
         ) : (
-          <EmptyState icon="🏥" title="No emergency facility in the demo data" />
+          <EmptyState icon="hospital" title="No emergency facility in the demo data" />
         )}
       </section>
 
@@ -310,7 +323,7 @@ export function EmergencyPage() {
           </ul>
         ) : (
           <EmptyState
-            icon="👨‍⚕️"
+            icon="doctor"
             title="No emergency doctor is marked available"
             body="Facility staff can change doctor availability from the facility dashboard."
           />

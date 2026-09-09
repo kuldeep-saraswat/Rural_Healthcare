@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/Badge'
 import { LinkButton } from '@/components/ui/Button'
-import { Card, KeyValue, SectionHeading } from '@/components/ui/Card'
+import { Card, KeyValue, PageHeader } from '@/components/ui/Card'
 import { Callout } from '@/components/ui/Callout'
 import { Toggle } from '@/components/ui/Form'
 import { EmptyState } from '@/components/ui/States'
@@ -22,7 +22,7 @@ export function ProfilePage() {
   if (!patient) {
     return (
       <EmptyState
-        icon="👤"
+        icon="user"
         title="No patient profile on this account"
         body={`You are signed in as ${user.name} (${ROLE_LABEL[user.role]}).`}
       />
@@ -30,15 +30,18 @@ export function ProfilePage() {
   }
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="Your details, what you share, and how the app behaves on a weak connection.">
-        Profile
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="user"
+        eyebrow="Account"
+        title="Profile"
+        description="Your details, what you share, and how the app behaves on a weak connection."
+      />
 
       <Card>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="text-2xl font-bold text-ink-900">{patient.name}</h2>
+            <h2 className="text-2xl leading-tight font-bold tracking-tight text-ink-900">{patient.name}</h2>
             <p className="text-sm text-ink-700">
               {patient.age} years · {patient.gender} · {patient.village}
             </p>
@@ -63,7 +66,7 @@ export function ProfilePage() {
       </Card>
 
       <Card>
-        <h2 className="text-lg font-semibold text-ink-900">Consent - who can see my record</h2>
+        <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Consent - who can see my record</h2>
         <p className="mt-1 mb-2 text-sm text-ink-500">
           Turning a switch off hides those sections from that role immediately, everywhere in the
           app. Last updated {formatDateTime(patient.consent.updatedAt)}.
@@ -104,7 +107,7 @@ export function ProfilePage() {
             store.updateConsent(patient.id, { shareAnonymisedWithAdmin: value })
           }}
         />
-        <Callout tone="neutral" className="mt-3" icon="🔐" title="Prototype privacy model">
+        <Callout tone="neutral" className="mt-3" icon="lock" title="Prototype privacy model">
           Admin and government accounts never see an identifiable patient record in this
           prototype - only aggregates. Patient data stays in this browser and is never sent
           anywhere.
@@ -112,7 +115,7 @@ export function ProfilePage() {
       </Card>
 
       <Card>
-        <h2 className="text-lg font-semibold text-ink-900">Language</h2>
+        <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Language</h2>
         <p className="mt-1 mb-3 text-sm text-ink-500">
           The assistant understands all three, including Roman transliteration.
         </p>
@@ -120,7 +123,7 @@ export function ProfilePage() {
       </Card>
 
       <Card>
-        <h2 className="text-lg font-semibold text-ink-900">Connection</h2>
+        <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Connection</h2>
         <ConnectivityControls />
       </Card>
 

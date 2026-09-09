@@ -4,7 +4,7 @@ import type { DoseFrequency, DoseTiming, RiskLevel } from '@/types'
 import { PatientRecordView } from '@/components/record/PatientRecordView'
 import { Badge } from '@/components/ui/Badge'
 import { Button, LinkButton } from '@/components/ui/Button'
-import { Card, SectionHeading } from '@/components/ui/Card'
+import { Card, SectionHeading, PageHeader } from '@/components/ui/Card'
 import { Callout, SafetyNote } from '@/components/ui/Callout'
 import { Field, FieldRow, Select, TextArea, TextInput } from '@/components/ui/Form'
 import { EmptyState } from '@/components/ui/States'
@@ -16,6 +16,7 @@ import { canViewSection, hasCareRelationship } from '@/services/permissions'
 import { FREQUENCY_LABEL, TIMING_LABEL, defaultTimesFor } from '@/services/medications'
 import { suggestCareLevel } from '@/services/ai/decisionSupport'
 import { newId } from '@/lib/utils'
+import { Icon } from '@/components/ui/Icon'
 
 interface DraftItem {
   key: string
@@ -84,7 +85,7 @@ export function DoctorPatientPage() {
   if (!patient) {
     return (
       <EmptyState
-        icon="🧑‍⚕️"
+        icon="doctor"
         title="Patient not found"
         body="This patient id does not exist in the demo data."
         action={
@@ -100,7 +101,7 @@ export function DoctorPatientPage() {
     return (
       <div className="space-y-4">
         <SectionHeading>Access restricted</SectionHeading>
-        <Callout tone="warn" icon="🔒" title="No care relationship with this patient">
+        <Callout tone="warn" icon="lock" title="No care relationship with this patient">
           In this prototype a doctor can open a record only while treating the patient, or when the
           patient has been referred to their facility. This is the role-based access model working
           as intended.
@@ -175,13 +176,16 @@ export function DoctorPatientPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub={`${patient.age} years · ${patient.village} · ${patient.mainIssue}`}>
-        {patient.name}
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="idCard"
+        eyebrow="Patient record"
+        title={patient.name}
+        description={`${patient.age} years · ${patient.village} · ${patient.mainIssue}`}
+      />
 
       {consentBlocked ? (
-        <Callout tone="warn" icon="🔒" title="Limited access">
+        <Callout tone="warn" icon="lock" title="Limited access">
           This patient has withdrawn consent for sharing clinical notes with doctors. You can still
           record your own consultation.
         </Callout>
@@ -202,7 +206,7 @@ export function DoctorPatientPage() {
 
       <TabPanel id="notes" active={tab}>
         <Card>
-          <h2 className="text-lg font-semibold text-ink-900">Consultation notes</h2>
+          <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Consultation notes</h2>
           <p className="mt-1 mb-3 text-sm text-ink-500">
             Everything you write here travels with any referral you create.
           </p>
@@ -292,7 +296,7 @@ export function DoctorPatientPage() {
             </Button>
             {consultationId ? <Badge tone="ok">Saved to the patient record</Badge> : null}
           </div>
-          <Callout tone="info" className="mt-3" icon="🧭" title="Suggested care level (decision support)">
+          <Callout tone="info" className="mt-3" icon="compass" title="Suggested care level (decision support)">
             <strong>{suggestion.label}</strong> · urgency {suggestion.urgency}.{' '}
             {suggestion.rationale.join('; ')}. You decide - this is a suggestion from the demo data
             only.
@@ -302,7 +306,7 @@ export function DoctorPatientPage() {
 
       <TabPanel id="prescription" active={tab}>
         <Card>
-          <h2 className="text-lg font-semibold text-ink-900">Prescription</h2>
+          <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Prescription</h2>
           <p className="mt-1 mb-3 text-sm text-ink-500">
             The patient&apos;s medicine reminders are built from exactly these rows. The app never
             adds a medicine or changes a dose.
@@ -311,7 +315,7 @@ export function DoctorPatientPage() {
             {items.map((item, index) => (
               <li key={item.key} className="rounded-card border border-hairline p-3">
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="text-sm font-semibold text-ink-700">Medicine {index + 1}</span>
+                  <span className="text-[13px] font-semibold text-ink-700">Medicine {index + 1}</span>
                   {items.length > 1 ? (
                     <Button
                       size="sm"
@@ -470,7 +474,7 @@ export function DoctorPatientPage() {
               onClick={() => {
                 setItems((current) => [...current, emptyItem()])
               }}
-              icon="＋"
+              icon={<Icon name="plus" size={16} />}
             >
               Add another medicine
             </Button>
@@ -502,7 +506,7 @@ export function DoctorPatientPage() {
 
       <TabPanel id="referral" active={tab}>
         <Card>
-          <h2 className="text-lg font-semibold text-ink-900">Create a digital referral</h2>
+          <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Create a digital referral</h2>
           <p className="mt-1 mb-3 text-sm text-ink-500">
             Patient details, symptoms, history, reports, prescriptions and your notes are attached
             automatically.
@@ -627,7 +631,7 @@ export function DoctorPatientPage() {
 
       <TabPanel id="followup" active={tab}>
         <Card>
-          <h2 className="text-lg font-semibold text-ink-900">Set a follow-up</h2>
+          <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Set a follow-up</h2>
           <p className="mt-1 mb-3 text-sm text-ink-500">
             The patient gets a reminder, and so does their ASHA worker.
           </p>

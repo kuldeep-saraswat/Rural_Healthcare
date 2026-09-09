@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { ServiceStatus, StockStatus } from '@/types'
 import { Badge, RiskBadge, StockBadge } from '@/components/ui/Badge'
 import { Button, LinkButton } from '@/components/ui/Button'
-import { Card, KeyValue, SectionHeading, StatTile } from '@/components/ui/Card'
+import { Card, KeyValue, StatTile, PageHeader, StatGrid } from '@/components/ui/Card'
 import { Callout } from '@/components/ui/Callout'
 import { Meter } from '@/components/ui/Charts'
 import { Dialog } from '@/components/ui/Dialog'
@@ -18,6 +18,7 @@ import { currentUser } from '@/store/selectors'
 import { facilityPressure } from '@/services/ai/decisionSupport'
 import { MEDICINE_CATALOG, TEST_CATALOG, VACCINE_CATALOG } from '@/data/catalog'
 import { dayKeyOffset, formatDate, formatDateTime, pct } from '@/lib/utils'
+import { Icon } from '@/components/ui/Icon'
 
 function useFacility() {
   const store = useAppStore()
@@ -33,7 +34,7 @@ function useFacility() {
 export function FacilityOverviewPage() {
   const { store, facility } = useFacility()
   if (!facility) {
-    return <EmptyState icon="🏥" title="No facility linked to this account" />
+    return <EmptyState icon="hospital" title="No facility linked to this account" />
   }
   const pressure = facilityPressure(store).find((p) => p.facility.id === facility.id)
   const doctors = store.doctors.filter((d) => d.facilityId === facility.id)
@@ -49,15 +50,18 @@ export function FacilityOverviewPage() {
   const lowVaccines = facility.vaccines.filter((v) => v.status !== 'available')
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub={`${facility.name} · ${facility.village} · ${facility.timings}`}>
-        Facility dashboard
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="dashboard"
+        eyebrow="Facility operations"
+        title="Facility dashboard"
+        description={`${facility.name} · ${facility.village} · ${facility.timings}`}
+      />
 
       {emergencies.length ? (
         <Callout
           tone="danger"
-          icon="🚑"
+          icon="ambulance"
           title={`${emergencies.length} incoming emergency case(s)`}
           actions={
             <LinkButton to="/facility/emergency" tone="danger">
@@ -70,33 +74,40 @@ export function FacilityOverviewPage() {
         </Callout>
       ) : null}
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <StatGrid>
         <StatTile
           label="Doctors available"
           value={`${availableDoctors}/${doctors.length}`}
+          icon="doctor"
           tone={availableDoctors ? 'ok' : 'danger'}
+          to="/facility/resources"
         />
         <StatTile
           label="Incoming referrals"
           value={incomingReferrals.length}
+          icon="route"
           tone={incomingReferrals.length ? 'info' : 'default'}
+          to="/facility/referrals"
         />
         <StatTile
           label="Beds occupied"
           value={`${pct(facility.beds.occupied, facility.beds.total)}%`}
+          icon="bed"
           hint={`${facility.beds.occupied} of ${facility.beds.total}`}
           tone={pct(facility.beds.occupied, facility.beds.total) >= 85 ? 'danger' : 'default'}
         />
         <StatTile
           label="Stock alerts"
           value={lowMedicines.length + lowVaccines.length}
+          icon="package"
           tone={lowMedicines.length + lowVaccines.length ? 'warn' : 'ok'}
+          to="/facility/resources"
         />
-      </div>
+      </StatGrid>
 
       {pressure ? (
         <Card tone={pressure.level === 'high' ? 'danger' : pressure.level === 'watch' ? 'warn' : 'ok'}>
-          <h2 className="text-lg font-semibold text-ink-900">
+          <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">
             Facility pressure
             <span className="ml-2 align-middle text-xs font-normal text-ink-500">
               decision support
@@ -112,7 +123,7 @@ export function FacilityOverviewPage() {
             <ul className="mt-3 space-y-1 text-sm text-ink-900">
               {pressure.notes.map((note) => (
                 <li key={note} className="flex gap-2">
-                  <span aria-hidden="true">⚠️</span>
+                  <Icon name="alert" size={15} className="mt-0.5 shrink-0 text-warn-600" />
                   {note}
                 </li>
               ))}
@@ -124,7 +135,7 @@ export function FacilityOverviewPage() {
       ) : null}
 
       <Card>
-        <h2 className="text-lg font-semibold text-ink-900">Ambulances</h2>
+        <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Ambulances</h2>
         {ambulances.length ? (
           <ul className="mt-2 space-y-2">
             {ambulances.map((ambulance) => (
@@ -182,19 +193,22 @@ export function FacilityResourcesPage() {
   const [tab, setTab] = useState('doctors')
 
   if (!facility) {
-    return <EmptyState icon="🏥" title="No facility linked to this account" />
+    return <EmptyState icon="hospital" title="No facility linked to this account" />
   }
 
   const doctors = store.doctors.filter((d) => d.facilityId === facility.id)
   const ambulances = store.ambulances.filter((a) => a.facilityId === facility.id)
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="Changes here immediately change what patients see in the finder, the doctor list and emergency availability.">
-        Resource management
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="toolbox"
+        eyebrow="Facility operations"
+        title="Resource management"
+        description="Changes here immediately change what patients see in the finder, the doctor list and emergency availability."
+      />
 
-      <Callout tone="info" icon="🔗" title="Connected demo">
+      <Callout tone="info" icon="externalLink" title="Connected demo">
         Mark a doctor unavailable and they disappear from the patient-side &ldquo;Available Doctors
         Now&rdquo; list. Set a medicine out of stock and the medicine finder shows it as out of
         stock.
@@ -262,7 +276,7 @@ export function FacilityResourcesPage() {
               ))}
             </ul>
           ) : (
-            <EmptyState icon="👨‍⚕️" title="No doctors posted here" />
+            <EmptyState icon="doctor" title="No doctors posted here" />
           )}
         </Card>
       </TabPanel>
@@ -416,7 +430,7 @@ export function FacilityResourcesPage() {
               ))}
             </ul>
           ) : (
-            <EmptyState icon="🚑" title="No ambulance attached" />
+            <EmptyState icon="ambulance" title="No ambulance attached" />
           )}
         </Card>
       </TabPanel>
@@ -498,7 +512,7 @@ export function FacilityReferralsPage() {
   const toast = useToast()
   const { store, facility } = useFacility()
   if (!facility) {
-    return <EmptyState icon="🏥" title="No facility linked to this account" />
+    return <EmptyState icon="hospital" title="No facility linked to this account" />
   }
   const referrals = store.referrals
     .filter((r) => r.toFacilityId === facility.id)
@@ -510,10 +524,13 @@ export function FacilityReferralsPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="Referrals sent to this facility, with the full record attached.">
-        Incoming referrals
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="route"
+        eyebrow="Patient flow"
+        title="Incoming referrals"
+        description="Referrals sent to this facility, with the full record attached."
+      />
 
       {referrals.length ? (
         <ul className="space-y-3">
@@ -592,7 +609,7 @@ export function FacilityReferralsPage() {
         </ul>
       ) : (
         <EmptyState
-          icon="🔁"
+          icon="route"
           title="No referrals yet"
           body="A referral created by a doctor or ASHA worker appears here instantly."
         />
@@ -609,7 +626,7 @@ export function FacilityEmergencyPage() {
   const toast = useToast()
   const { store, facility } = useFacility()
   if (!facility) {
-    return <EmptyState icon="🏥" title="No facility linked to this account" />
+    return <EmptyState icon="hospital" title="No facility linked to this account" />
   }
   const requests = store.emergencyRequests
     .filter((e) => e.destinationFacilityId === facility.id)
@@ -620,10 +637,13 @@ export function FacilityEmergencyPage() {
   )
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="Pre-arrival alerts raised when an ambulance is assigned to this facility.">
-        Emergency alerts
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="siren"
+        eyebrow="Patient flow"
+        title="Emergency alerts"
+        description="Pre-arrival alerts raised when an ambulance is assigned to this facility."
+      />
 
       {active.length ? (
         <ul className="space-y-4">
@@ -634,7 +654,7 @@ export function FacilityEmergencyPage() {
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <h2 className="flex items-center gap-2 text-xl font-extrabold text-ink-900">
-                      <span aria-hidden="true">🚑</span> INCOMING EMERGENCY
+                      <Icon name="siren" size={22} className="text-sos-600" /> INCOMING EMERGENCY
                     </h2>
                     <p className="mt-1 text-sm text-ink-500">
                       Raised {formatDateTime(request.createdAt)} · demo alert
@@ -672,7 +692,7 @@ export function FacilityEmergencyPage() {
                       toast.show({ tone: 'ok', title: 'Emergency bay prepared (demo)' })
                     }}
                   >
-                    {request.emergencyPrepared ? 'Emergency prepared ✓' : 'Prepare Emergency'}
+                    {request.emergencyPrepared ? 'Emergency prepared' : 'Prepare Emergency'}
                   </Button>
                   <AssignDoctorButton
                     requestId={request.id}
@@ -746,7 +766,7 @@ export function FacilityEmergencyPage() {
         </ul>
       ) : (
         <EmptyState
-          icon="🚑"
+          icon="ambulance"
           title="No incoming emergency"
           body="When a patient or ASHA worker requests an ambulance and this facility is the destination, a pre-arrival alert appears here."
         />
@@ -754,7 +774,7 @@ export function FacilityEmergencyPage() {
 
       {requests.filter((r) => r.status === 'completed').length ? (
         <Card>
-          <h2 className="text-lg font-semibold text-ink-900">Closed cases</h2>
+          <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Closed cases</h2>
           <ul className="mt-2 space-y-1 text-sm text-ink-700">
             {requests
               .filter((r) => r.status === 'completed')
@@ -872,28 +892,31 @@ export function FacilityCampsPage() {
   const [mobileUnit, setMobileUnit] = useState('no')
 
   if (!facility) {
-    return <EmptyState icon="🏥" title="No facility linked to this account" />
+    return <EmptyState icon="hospital" title="No facility linked to this account" />
   }
 
   const camps = store.camps.filter((c) => c.organiserFacilityId === facility.id)
 
   return (
-    <div className="space-y-4">
-      <SectionHeading
-        sub="Camps organised by this facility. Patients and ASHA workers in the village are notified."
-        right={
+    <div className="space-y-6">
+      <PageHeader
+        icon="tent"
+        eyebrow="Facility programmes"
+        title="Medical camps"
+        description="Camps organised by this facility. Patients and ASHA workers in the village are notified."
+        actions={
           <Button
             tone="primary"
             onClick={() => {
               setOpen(true)
             }}
+          
+            icon={<Icon name="plus" size={16} />}
           >
-            + New camp
+            New camp
           </Button>
         }
-      >
-        Medical camps
-      </SectionHeading>
+      />
 
       {camps.length ? (
         <ul className="space-y-3">
@@ -914,7 +937,7 @@ export function FacilityCampsPage() {
           })}
         </ul>
       ) : (
-        <EmptyState icon="⛺" title="No camps organised yet" />
+        <EmptyState icon="tent" title="No camps organised yet" />
       )}
 
       <Dialog

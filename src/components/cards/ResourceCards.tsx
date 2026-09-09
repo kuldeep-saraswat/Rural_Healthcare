@@ -6,6 +6,7 @@ import { useDemoAction } from '@/components/DemoAction'
 import { medicineById, testById, vaccineById } from '@/data/catalog'
 import { formatDateTime } from '@/lib/utils'
 import { useT } from '@/services/i18n'
+import { Icon } from '@/components/ui/Icon'
 
 export function MedicineAvailabilityCard({
   medicineId,
@@ -26,7 +27,7 @@ export function MedicineAvailabilityCard({
     <Card as="li" className="list-none">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <h3 className="text-lg font-semibold text-ink-900">{medicine.name}</h3>
+          <h3 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">{medicine.name}</h3>
           <p className="text-sm text-ink-500">{medicine.generic}</p>
           <p className="mt-1 text-sm text-ink-900">
             {facility.name} · {facility.distanceKm} km
@@ -38,7 +39,7 @@ export function MedicineAvailabilityCard({
       <div className="mt-4 flex flex-wrap gap-2">
         <Button
           size="lg"
-          icon="📞"
+          icon={<Icon name="phone" size={16} />}
           onClick={() => {
             demo.call(facility.name, facility.phone)
           }}
@@ -47,7 +48,7 @@ export function MedicineAvailabilityCard({
         </Button>
         <Button
           size="lg"
-          icon="🧭"
+          icon={<Icon name="compass" size={16} />}
           onClick={() => {
             demo.directions(facility.name, facility.address)
           }}
@@ -83,7 +84,7 @@ export function TestAvailabilityCard({
     <Card as="li" className="list-none">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <h3 className="text-lg font-semibold text-ink-900">{test.name}</h3>
+          <h3 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">{test.name}</h3>
           <p className="mt-1 text-sm text-ink-900">
             {facility.name} · {facility.distanceKm} km
           </p>
@@ -101,7 +102,7 @@ export function TestAvailabilityCard({
       <div className="mt-4 flex flex-wrap gap-2">
         <Button
           size="lg"
-          icon="🧭"
+          icon={<Icon name="compass" size={16} />}
           onClick={() => {
             demo.directions(facility.name, facility.address)
           }}
@@ -110,7 +111,7 @@ export function TestAvailabilityCard({
         </Button>
         <Button
           size="lg"
-          icon="📞"
+          icon={<Icon name="phone" size={16} />}
           onClick={() => {
             demo.call(facility.name, facility.phone)
           }}
@@ -145,7 +146,7 @@ export function VaccineAvailabilityCard({
     <Card as="li" className="list-none">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <h3 className="text-lg font-semibold text-ink-900">{vaccine.name}</h3>
+          <h3 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">{vaccine.name}</h3>
           <p className="text-sm text-ink-500">Eligibility: {vaccine.eligibility}</p>
           <p className="mt-1 text-sm text-ink-900">
             {facility.name} · {facility.distanceKm} km
@@ -163,19 +164,19 @@ export function VaccineAvailabilityCard({
             size="lg"
             disabled={registered || stock.status === 'out'}
             onClick={onRegister}
-            icon={registered ? '✓' : '📝'}
+            icon={<Icon name={registered ? 'checkCircle' : 'bell'} size={16} />}
           >
             {registered ? 'Registered (demo)' : t('action.register')}
           </Button>
         ) : null}
         {onRemind ? (
-          <Button size="lg" icon="🔔" onClick={onRemind}>
+          <Button size="lg" icon={<Icon name="bell" size={16} />} onClick={onRemind}>
             Set reminder
           </Button>
         ) : null}
         <Button
           size="lg"
-          icon="📞"
+          icon={<Icon name="phone" size={16} />}
           onClick={() => {
             demo.call(facility.name, facility.phone)
           }}

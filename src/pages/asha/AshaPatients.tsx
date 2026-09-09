@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { PatientRecordView } from '@/components/record/PatientRecordView'
 import { Badge, PendingSyncBadge } from '@/components/ui/Badge'
 import { Button, LinkButton } from '@/components/ui/Button'
-import { SectionHeading } from '@/components/ui/Card'
+import { PageHeader } from '@/components/ui/Card'
 import { Callout } from '@/components/ui/Callout'
 import { Dialog } from '@/components/ui/Dialog'
 import { Field, FieldRow, Select, TextArea, TextInput } from '@/components/ui/Form'
@@ -13,6 +13,7 @@ import { useDemoAction } from '@/components/DemoAction'
 import { isEffectivelyOffline, useAppStore } from '@/store/useAppStore'
 import { bucketFollowUp, currentUser } from '@/store/selectors'
 import { formatDate } from '@/lib/utils'
+import { Icon } from '@/components/ui/Icon'
 
 export function AshaPatientsPage() {
   const toast = useToast()
@@ -29,26 +30,29 @@ export function AshaPatientsPage() {
   const openPatient = patients.find((p) => p.id === openPatientId)
 
   return (
-    <div className="space-y-4">
-      <SectionHeading
-        sub="Everything here works offline. Actions are queued and synced when the connection returns."
-        right={
+    <div className="space-y-6">
+      <PageHeader
+        icon="users"
+        eyebrow="Field work"
+        title="My patients"
+        description="Everything here works offline. Actions are queued and synced when the connection returns."
+        actions={
           <Button
             tone="primary"
             size="lg"
             onClick={() => {
               setRegisterOpen(true)
             }}
+          
+            icon={<Icon name="plus" size={16} />}
           >
-            + New patient
+            New patient
           </Button>
         }
-      >
-        My patients
-      </SectionHeading>
+      />
 
       {offline ? (
-        <Callout tone="warn" icon="📴" title="Working offline">
+        <Callout tone="warn" icon="cloudOff" title="Working offline">
           You can still register patients, add screenings, create referrals and set follow-ups.
           Everything is saved on this device and marked &ldquo;waiting to sync&rdquo;.
         </Callout>
@@ -149,7 +153,7 @@ export function AshaPatientsPage() {
         </TableWrap>
       ) : (
         <EmptyState
-          icon="🧑‍🤝‍🧑"
+          icon="users"
           title="No patients assigned"
           body="Register the first household member to get started."
           action={

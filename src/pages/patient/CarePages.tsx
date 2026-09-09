@@ -2,7 +2,7 @@ import { useSearchParams } from 'react-router-dom'
 import { DoseCard, FollowUpCard, ReferralCard, ScheduleSummaryCard } from '@/components/cards/CareCards'
 import { Badge } from '@/components/ui/Badge'
 import { Button, LinkButton } from '@/components/ui/Button'
-import { Card, SectionHeading, StatTile } from '@/components/ui/Card'
+import { Card, StatTile, PageHeader } from '@/components/ui/Card'
 import { Callout, SafetyNote } from '@/components/ui/Callout'
 import { EmptyState } from '@/components/ui/States'
 import { useToast } from '@/components/ui/Toast'
@@ -11,6 +11,7 @@ import { currentPatient, referralsForPatient } from '@/store/selectors'
 import { buildDayDoses } from '@/services/medications'
 import { useT } from '@/services/i18n'
 import { formatClock, formatDate, todayKey } from '@/lib/utils'
+import { Icon } from '@/components/ui/Icon'
 
 // ---------------------------------------------------------------------------
 // Referrals
@@ -28,10 +29,13 @@ export function ReferralsPage() {
     : referrals
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="Every referral, with the exact stage it has reached.">
-        My referrals
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="route"
+        eyebrow="My health"
+        title="My referrals"
+        description="Every referral, with the exact stage it has reached."
+      />
 
       {ordered.length ? (
         <ul className="space-y-3">
@@ -41,14 +45,14 @@ export function ReferralsPage() {
         </ul>
       ) : (
         <EmptyState
-          icon="🔁"
+          icon="route"
           title={t('empty.noReferral')}
           body="A doctor or your ASHA worker creates a referral when you need care at a bigger facility."
           action={<LinkButton to="/doctors">Talk to a doctor</LinkButton>}
         />
       )}
 
-      <Callout tone="neutral" icon="🧾" title="What travels with a referral">
+      <Callout tone="neutral" icon="record" title="What travels with a referral">
         Your details, symptoms, relevant history, reports, prescription and the doctor&apos;s reason
         are attached automatically, so the receiving doctor does not start from zero.
       </Callout>
@@ -74,11 +78,16 @@ export function FollowUpsPage() {
   const done = mine.filter((f) => f.status !== 'scheduled')
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="Reminders set by your doctor or ASHA worker.">My follow-ups</SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="calendarCheck"
+        eyebrow="My health"
+        title="My follow-ups"
+        description="Reminders set by your doctor or ASHA worker."
+      />
 
       {pending.length ? (
-        <ul className="space-y-3">
+        <ul className="grid gap-3 xl:grid-cols-2">
           {pending.map((followUp) => (
             <FollowUpCard
               key={followUp.id}
@@ -103,7 +112,7 @@ export function FollowUpsPage() {
         </ul>
       ) : (
         <EmptyState
-          icon="📅"
+          icon="calendar"
           title={t('empty.noFollowUp')}
           body="Your doctor can set one after a consultation."
         />
@@ -111,7 +120,7 @@ export function FollowUpsPage() {
 
       {done.length ? (
         <section>
-          <h2 className="mt-6 mb-3 text-lg font-bold text-ink-900">Earlier follow-ups</h2>
+          <h2 className="mt-6 mb-3 text-lg leading-snug font-semibold tracking-tight text-ink-900">Earlier follow-ups</h2>
           <ul className="space-y-3">
             {done.map((followUp) => (
               <FollowUpCard key={followUp.id} followUp={followUp} />
@@ -151,7 +160,7 @@ export function MedicationsPage() {
   if (!patient) {
     return (
       <EmptyState
-        icon="⏰"
+        icon="alarm"
         title="No patient account selected"
         body="Switch to the patient demo account to see medicine reminders."
       />
@@ -159,10 +168,13 @@ export function MedicationsPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="Created only from your doctor's prescription. Doses are never changed by the app.">
-        Medicine reminders
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="alarm"
+        eyebrow="My health"
+        title="Medicine reminders"
+        description="Created only from your doctor's prescription. Doses are never changed by the app."
+      />
 
       <div className="grid gap-3 sm:grid-cols-3">
         <StatTile label="Taken today" value={taken} tone="ok" />
@@ -172,7 +184,7 @@ export function MedicationsPage() {
 
       {doses.length ? (
         <>
-          <Callout tone="info" icon="🔔" title="Notification (demo)">
+          <Callout tone="info" icon="bell" title="Notification (demo)">
             Time to take your prescribed medicine. In a real deployment this would also arrive as a
             phone notification or an SMS.
           </Callout>
@@ -203,7 +215,7 @@ export function MedicationsPage() {
         </>
       ) : (
         <EmptyState
-          icon="⏰"
+          icon="alarm"
           title="No active medicine schedule"
           body="When a doctor writes a prescription in this prototype, reminders appear here automatically."
           action={<LinkButton to="/doctors">Talk to a doctor</LinkButton>}
@@ -211,14 +223,18 @@ export function MedicationsPage() {
       )}
 
       <Card>
-        <h2 className="text-lg font-semibold text-ink-900">Today&apos;s history</h2>
+        <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Today&apos;s history</h2>
         {history.length ? (
           <ul className="mt-2 space-y-1 text-[15px]">
             {history.map((log) => {
               const schedule = schedules.find((s) => s.id === log.scheduleId)
               return (
                 <li key={log.id} className="flex items-center gap-2">
-                  <span aria-hidden="true">{log.status === 'taken' ? '✓' : '✕'}</span>
+                  <Icon
+                    name={log.status === 'taken' ? 'checkCircle' : 'closeCircle'}
+                    size={16}
+                    className={log.status === 'taken' ? 'text-ok-600' : 'text-warn-600'}
+                  />
                   <span className="tabular-nums">{formatClock(log.time)}</span>
                   <span className="text-ink-700">
                     {schedule?.medicineName ?? 'Medicine'} — {log.status}
@@ -241,7 +257,7 @@ export function MedicationsPage() {
       </Card>
 
       <section>
-        <h2 className="mb-3 text-lg font-bold text-ink-900">Full schedule</h2>
+        <h2 className="mb-3 text-lg leading-snug font-semibold tracking-tight text-ink-900">Full schedule</h2>
         {schedules.length ? (
           <ul className="space-y-3">
             {schedules.map((schedule) => (

@@ -1,6 +1,7 @@
 import { LinkButton } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
-import { Card, SectionHeading, StatTile } from '@/components/ui/Card'
+import { Card, PageHeader, SectionHeading, StatGrid, StatTile } from '@/components/ui/Card'
+import { Icon } from '@/components/ui/Icon'
 import { Callout } from '@/components/ui/Callout'
 import { FollowUpCard } from '@/components/cards/CareCards'
 import { ConnectionStatus } from '@/components/layout/HeaderWidgets'
@@ -34,57 +35,91 @@ export function AshaOverviewPage() {
   )
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub={`${asha?.name ?? user.name} · ${asha?.villagesCovered.join(', ') ?? user.village}`}>
-        ASHA dashboard
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="dashboard"
+        eyebrow="Community health worker"
+        title="ASHA dashboard"
+        description={`${asha?.name ?? user.name} · ${asha?.villagesCovered.join(', ') ?? user.village}`}
+        meta={
+          <>
+            <ConnectionStatus />
+            {pendingSync ? (
+              <Badge tone="warn" icon="cloudOff">
+                {pendingSync} action(s) waiting to sync
+              </Badge>
+            ) : null}
+          </>
+        }
+        actions={
+          <LinkButton to="/assisted" tone="primary" icon={<Icon name="stethoscope" size={16} />}>
+            Assisted consultation
+          </LinkButton>
+        }
+      />
 
-      <div className="flex flex-wrap items-center gap-2">
-        <ConnectionStatus />
-        {pendingSync ? <Badge tone="warn">{pendingSync} action(s) waiting to sync</Badge> : null}
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile label="My patients" value={myPatients.length} />
-        <StatTile label="Households" value={asha?.householdIds.length ?? 0} />
+      <StatGrid>
+        <StatTile label="My patients" value={myPatients.length} icon="users" to="/asha/patients" />
+        <StatTile
+          label="Households"
+          value={asha?.householdIds.length ?? 0}
+          icon="household"
+          to="/asha/households"
+        />
         <StatTile
           label="Referral follow-ups"
           value={dropOffs.length}
+          icon="route"
           tone={dropOffs.length ? 'danger' : 'default'}
+          hint={dropOffs.length ? 'Patient has not reached the facility' : 'All referrals on track'}
+          to="/asha/referrals"
         />
         <StatTile
           label="Vaccinations due"
           value={dueVaccines.length}
+          icon="syringe"
           tone={dueVaccines.length ? 'warn' : 'default'}
+          to="/asha/preventive"
         />
-      </div>
+      </StatGrid>
 
-      <Card>
-        <SectionHeading sub="Your visit list for today.">Today&apos;s follow-ups</SectionHeading>
-        <div className="grid gap-3 sm:grid-cols-3">
+      <Card padding="lg">
+        <SectionHeading
+          sub="Your visit list for today."
+          right={
+            <LinkButton
+              to="/asha/follow-ups"
+              tone="primary"
+              size="sm"
+              iconAfter={<Icon name="arrowRight" size={14} />}
+            >
+              Open follow-up list
+            </LinkButton>
+          }
+        >
+          Today&apos;s follow-ups
+        </SectionHeading>
+        <StatGrid columns={3}>
           <StatTile
             label="Overdue"
-            value={`🔴 ${overdue.length}`}
+            value={overdue.length}
+            icon="alertCircle"
             tone={overdue.length ? 'danger' : 'default'}
           />
           <StatTile
             label="Due today"
-            value={`🟡 ${dueToday.length}`}
+            value={dueToday.length}
+            icon="calendar"
             tone={dueToday.length ? 'warn' : 'default'}
           />
-          <StatTile label="Completed" value={`🟢 ${completed.length}`} tone="ok" />
-        </div>
-        <div className="mt-4">
-          <LinkButton to="/asha/follow-ups" tone="primary">
-            Open follow-up list
-          </LinkButton>
-        </div>
+          <StatTile label="Completed" value={completed.length} icon="checkCircle" tone="ok" />
+        </StatGrid>
       </Card>
 
       {dropOffs.length ? (
         <Callout
           tone="warn"
-          icon="⚠️"
+          icon="alert"
           title={`${dropOffs.length} referral follow-up(s) required`}
           actions={<LinkButton to="/asha/referrals">Open referrals</LinkButton>}
         >
@@ -96,7 +131,7 @@ export function AshaOverviewPage() {
       {villageAlerts.length ? (
         <Callout
           tone="info"
-          icon="📢"
+          icon="megaphone"
           title={`${villageAlerts.length} demo alert(s) for your villages`}
           actions={<LinkButton to="/asha/alerts">See precautions</LinkButton>}
         >
@@ -106,13 +141,14 @@ export function AshaOverviewPage() {
 
       {risks.length ? (
         <Card tone="info">
-          <h2 className="text-lg font-semibold text-ink-900">
+          <h2 className="flex flex-wrap items-center gap-2 text-base font-semibold text-ink-900">
+            <Icon name="activity" size={18} className="text-info-600" />
             Follow-up risk
-            <span className="ml-2 align-middle text-xs font-normal text-ink-500">
+            <span className="rounded-full bg-info-100 px-2 py-0.5 text-2xs font-bold tracking-wide text-info-700 uppercase">
               decision support
             </span>
           </h2>
-          <ul className="mt-2 space-y-1 text-sm text-ink-900">
+          <ul className="mt-3 space-y-2 text-sm text-ink-800">
             {risks.map((risk) => (
               <li key={risk.followUp.id} className="flex flex-wrap items-center justify-between gap-2">
                 <span>
@@ -132,7 +168,7 @@ export function AshaOverviewPage() {
       <section aria-labelledby="due-today">
         <SectionHeading id="due-today">Due today and overdue</SectionHeading>
         {[...overdue, ...dueToday].length ? (
-          <ul className="space-y-3">
+          <ul className="grid gap-3 xl:grid-cols-2">
             {[...overdue, ...dueToday].map((followUp) => (
               <FollowUpCard
                 key={followUp.id}
@@ -147,26 +183,32 @@ export function AshaOverviewPage() {
             ))}
           </ul>
         ) : (
-          <EmptyState icon="✅" title="Nothing due today" body="Your follow-up list is clear." />
+          <EmptyState icon="checkCircle" title="Nothing due today" body="Your follow-up list is clear." />
         )}
       </section>
 
-      <Card>
-        <h2 className="text-lg font-semibold text-ink-900">Quick actions</h2>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <LinkButton to="/asha/patients" tone="primary" size="lg">
+      <Card padding="lg">
+        <SectionHeading sub="The things you start most often in the field." icon="sparkle">
+          Quick actions
+        </SectionHeading>
+        <div className="flex flex-wrap gap-2">
+          <LinkButton
+            to="/asha/patients"
+            tone="primary"
+            icon={<Icon name="userPlus" size={16} />}
+          >
             Register a patient
           </LinkButton>
-          <LinkButton to="/assisted" size="lg">
+          <LinkButton to="/assisted" icon={<Icon name="stethoscope" size={16} />}>
             Assisted consultation
           </LinkButton>
-          <LinkButton to="/asha/camps" size="lg">
+          <LinkButton to="/asha/camps" icon={<Icon name="tent" size={16} />}>
             Register for a camp
           </LinkButton>
-          <LinkButton to="/asha/offline" size="lg">
+          <LinkButton to="/asha/offline" icon={<Icon name="cloudOff" size={16} />}>
             Offline data &amp; sync
           </LinkButton>
-          <LinkButton to="/asha/nearby" size="lg">
+          <LinkButton to="/asha/nearby" icon={<Icon name="pin" size={16} />}>
             Nearby healthcare
           </LinkButton>
         </div>

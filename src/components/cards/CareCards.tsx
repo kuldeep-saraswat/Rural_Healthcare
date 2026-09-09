@@ -12,6 +12,7 @@ import { useAppStore } from '@/store/useAppStore'
 import { bucketFollowUp } from '@/store/selectors'
 import { formatClock, formatDate, formatDateTime, relativeDays } from '@/lib/utils'
 import { useT } from '@/services/i18n'
+import { Icon, IconChip } from '@/components/ui/Icon'
 
 export const REFERRAL_STATUS_LABEL: Record<ReferralStatus, string> = {
   created: 'Created',
@@ -74,7 +75,7 @@ export function ReferralCard({
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <h3 className="text-lg font-semibold text-ink-900">
+          <h3 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">
             {patientLabel ? `${patientLabel} → ` : ''}
             {to?.name ?? 'Referred facility'}
           </h3>
@@ -96,17 +97,20 @@ export function ReferralCard({
       {referral.dropOffFlagged ? (
         <div
           role="alert"
-          className="mt-3 rounded-card border border-warn-500/40 bg-warn-50 p-3 text-sm text-warn-700"
+          className="mt-3 flex gap-2.5 rounded-card border border-warn-200 bg-warn-50 p-3 text-sm text-warn-700"
         >
-          <strong>⚠️ Referral follow-up required.</strong> The patient has not reached{' '}
+          <Icon name="alert" size={17} className="mt-px shrink-0 text-warn-600" />
+          <span>
+          <strong>Referral follow-up required.</strong> The patient has not reached{' '}
           {to?.name ?? 'the facility'} by the expected date (
           {formatDate(referral.expectedArrivalBy)}).
+          </span>
         </div>
       ) : null}
 
       {showTimeline ? (
         <div className="mt-4">
-          <h4 className="mb-2 text-sm font-semibold text-ink-700">Referral journey</h4>
+          <h4 className="eyebrow mb-3 text-ink-400">Referral journey</h4>
           <Timeline steps={referralSteps(referral)} />
         </div>
       ) : null}
@@ -115,9 +119,10 @@ export function ReferralCard({
         {actions ?? (
           <Link
             to={`/referrals?id=${referral.id}`}
-            className="inline-flex min-h-11 items-center rounded-card border border-hairline bg-white px-4 text-sm font-medium hover:bg-care-50"
+            className="inline-flex min-h-11 items-center gap-2 rounded-card border border-hairline-strong bg-surface px-4 text-sm font-semibold shadow-xs transition-colors hover:bg-canvas"
           >
             {t('action.track')}
+            <Icon name="arrowRight" size={15} />
           </Link>
         )}
       </div>
@@ -194,17 +199,16 @@ export function DoseCard({
     <Card as="li" className="list-none" tone={tone === 'default' ? 'default' : tone}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span aria-hidden="true" className="text-xl">
-              💊
-            </span>
-            <h3 className="text-lg font-semibold text-ink-900">{slot.medicineName}</h3>
+          <div className="flex items-center gap-2.5">
+            <IconChip name="pill" tone="care" size="sm" />
+            <h3 className="text-lg leading-snug font-semibold text-ink-900">{slot.medicineName}</h3>
           </div>
           <p className="mt-1 text-[15px] text-ink-900">
             <strong>{slot.dose}</strong> · {TIMING_LABEL[slot.timing]}
           </p>
-          <p className="text-sm text-ink-500">
-            ⏰ {formatClock(slot.time)} · prescribed by {slot.prescribedBy}
+          <p className="mt-0.5 flex items-center gap-1.5 text-sm text-ink-500">
+            <Icon name="clock" size={14} />
+            {formatClock(slot.time)} · prescribed by {slot.prescribedBy}
           </p>
         </div>
         <Badge
@@ -231,7 +235,7 @@ export function DoseCard({
         <Button
           tone={slot.state === 'taken' ? 'subtle' : 'primary'}
           size="lg"
-          icon="✓"
+          icon={<Icon name="check" size={16} strokeWidth={2.4} />}
           onClick={onTaken}
         >
           {t('action.markTaken')}
@@ -241,7 +245,7 @@ export function DoseCard({
         </Button>
         <Link
           to={`/records?prescription=${slot.prescriptionId}`}
-          className="inline-flex min-h-13 items-center rounded-card px-3 text-sm font-medium text-care-700 underline hover:bg-care-50"
+          className="inline-flex min-h-12 items-center gap-1.5 rounded-card px-3 text-[15px] font-semibold text-care-700 transition-colors hover:bg-care-50"
         >
           {t('action.viewPrescription')}
         </Link>

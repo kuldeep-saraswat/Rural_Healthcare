@@ -7,7 +7,7 @@ import {
 } from '@/components/cards/ResourceCards'
 import { Badge } from '@/components/ui/Badge'
 import { Button, LinkButton } from '@/components/ui/Button'
-import { Card, SectionHeading } from '@/components/ui/Card'
+import { Card, PageHeader } from '@/components/ui/Card'
 import { Callout, SafetyNote } from '@/components/ui/Callout'
 import { EmptyState } from '@/components/ui/States'
 import { useToast } from '@/components/ui/Toast'
@@ -103,10 +103,13 @@ export function MedicinesPage() {
   const results = findMedicineAvailability(facilities, query)
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="Stock status reported by facilities in the demo dataset. This is availability information only.">
-        Medicine availability
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="pill"
+        eyebrow="Find services"
+        title="Medicine availability"
+        description="Stock status reported by facilities in the demo dataset. This is availability information only."
+      />
 
       <FinderSearch
         label="Which medicine are you looking for?"
@@ -117,7 +120,7 @@ export function MedicinesPage() {
       {results.length ? (
         <>
           <p className="text-sm text-ink-500">{results.length} result(s), nearest first.</p>
-          <ul className="space-y-3">
+          <ul className="grid gap-3 lg:grid-cols-2 2xl:grid-cols-3">
             {results.map((result) => (
               <MedicineAvailabilityCard
                 key={`${result.medicine.id}-${result.facility.id}`}
@@ -134,7 +137,7 @@ export function MedicinesPage() {
         </>
       ) : (
         <EmptyState
-          icon="💊"
+          icon="pill"
           title={query ? t('empty.noMedicine') : 'Search for a medicine'}
           body={
             query
@@ -162,10 +165,13 @@ export function TestsPage() {
   const results = findTestAvailability(facilities, query)
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="Where a test is available, how long the report takes and the indicative cost.">
-        Test finder
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="microscope"
+        eyebrow="Find services"
+        title="Test finder"
+        description="Where a test is available, how long the report takes and the indicative cost."
+      />
 
       <FinderSearch
         label="Which test do you need?"
@@ -183,7 +189,7 @@ export function TestsPage() {
       {results.length ? (
         <>
           <p className="text-sm text-ink-500">{results.length} facility(ies), nearest first.</p>
-          <ul className="space-y-3">
+          <ul className="grid gap-3 lg:grid-cols-2 2xl:grid-cols-3">
             {results.map((result) => (
               <TestAvailabilityCard
                 key={`${result.test.id}-${result.facility.id}`}
@@ -201,7 +207,7 @@ export function TestsPage() {
         </>
       ) : (
         <EmptyState
-          icon="🔬"
+          icon="microscope"
           title={query ? t('empty.noTest') : 'Search for a test'}
           body={
             query
@@ -217,7 +223,7 @@ export function TestsPage() {
         />
       )}
 
-      <Callout tone="neutral" icon="🧪" title="Prototype only">
+      <Callout tone="neutral" icon="flask" title="Prototype only">
         Availability, report times and costs are fictional demo values. In a real deployment these
         would come from each facility&apos;s own system.
       </Callout>
@@ -262,14 +268,17 @@ export function VaccinesPage() {
   )
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="Eligibility, centres, next session and registration.">
-        Vaccination
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="syringe"
+        eyebrow="Find services"
+        title="Vaccination"
+        description="Eligibility, centres, next session and registration."
+      />
 
       {myDue.length || householdDue.length ? (
         <Card tone="warn">
-          <h2 className="text-lg font-semibold text-ink-900">Due in your family</h2>
+          <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Due in your family</h2>
           <ul className="mt-2 space-y-2">
             {(myDue.length ? myDue : householdDue).map((record) => {
               const person = store.patients.find((p) => p.id === record.patientId)
@@ -309,7 +318,7 @@ export function VaccinesPage() {
       />
 
       {results.length ? (
-        <ul className="space-y-3">
+        <ul className="grid gap-3 lg:grid-cols-2 2xl:grid-cols-3">
           {results.map((result) => (
             <VaccineAvailabilityCard
               key={`${result.vaccine.id}-${result.facility.id}`}
@@ -338,7 +347,7 @@ export function VaccinesPage() {
         </ul>
       ) : (
         <EmptyState
-          icon="💉"
+          icon="syringe"
           title="No vaccine stock matches"
           body="Try another vaccine name, or check with your ASHA worker for the next immunisation session."
           action={<LinkButton to="/asha-contact">Contact ASHA</LinkButton>}

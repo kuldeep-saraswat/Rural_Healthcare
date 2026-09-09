@@ -3,7 +3,7 @@ import type { Facility, FacilityType } from '@/types'
 import { FacilityCard, FACILITY_TYPE_ICON, FACILITY_TYPE_LABEL } from '@/components/cards/FacilityCards'
 import { Badge, StockBadge } from '@/components/ui/Badge'
 import { Button, LinkButton } from '@/components/ui/Button'
-import { Card, KeyValue, SectionHeading } from '@/components/ui/Card'
+import { Card, KeyValue, PageHeader } from '@/components/ui/Card'
 import { Callout } from '@/components/ui/Callout'
 import { Meter } from '@/components/ui/Charts'
 import { EmptyState } from '@/components/ui/States'
@@ -11,6 +11,7 @@ import { useAppStore } from '@/store/useAppStore'
 import { medicineById, testById, vaccineById } from '@/data/catalog'
 import { upcomingCamps } from '@/store/selectors'
 import { cx, formatDate, formatDateTime } from '@/lib/utils'
+import { Icon } from '@/components/ui/Icon'
 
 const TYPE_OPTIONS: FacilityType[] = [
   'phc',
@@ -92,10 +93,13 @@ export function NearbyPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="Distances and availability are fictional demo values for the Kalyanpur area.">
-        Nearby Healthcare
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="pin"
+        eyebrow="Find care"
+        title="Nearby Healthcare"
+        description="Distances and availability are fictional demo values for the Kalyanpur area."
+      />
 
       <Card>
         <fieldset>
@@ -118,7 +122,7 @@ export function NearbyPage() {
                       : 'border-hairline bg-surface text-ink-700 hover:bg-care-50',
                   )}
                 >
-                  <span aria-hidden="true">{FACILITY_TYPE_ICON[type]}</span>
+                  <Icon name={FACILITY_TYPE_ICON[type]} size={16} />
                   {FACILITY_TYPE_LABEL[type]}
                 </button>
               )
@@ -167,7 +171,7 @@ export function NearbyPage() {
       </Card>
 
       {store.lowConnectivity ? (
-        <Callout tone="warn" icon="📉" title="Low data mode">
+        <Callout tone="warn" icon="trendDown" title="Low data mode">
           Showing the five nearest facilities from cached data, without resource details, to keep
           this page light on a slow connection.
         </Callout>
@@ -180,7 +184,7 @@ export function NearbyPage() {
       {!store.lowConnectivity && nearbyCamps.length ? (
         <Callout
           tone="info"
-          icon="⛺"
+          icon="tent"
           title={`${nearbyCamps.length} medical camp(s) coming to villages near you`}
           actions={<LinkButton to="/camps">Open medical camps</LinkButton>}
         >
@@ -203,7 +207,7 @@ export function NearbyPage() {
         </ul>
       ) : (
         <EmptyState
-          icon="📍"
+          icon="pin"
           title="No facility matches these filters"
           body="Try removing a filter, or ask the assistant what you need."
           action={
@@ -232,15 +236,15 @@ function FacilityDetail({ facility, onBack }: { facility: Facility; onBack: () =
 
   return (
     <div className="space-y-4">
-      <Button onClick={onBack} icon="←">
+      <Button onClick={onBack} icon={<Icon name="arrowLeft" size={16} />}>
         Back to list
       </Button>
 
       <Card>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="flex items-center gap-2 text-2xl font-bold text-ink-900">
-              <span aria-hidden="true">{FACILITY_TYPE_ICON[facility.type]}</span>
+            <h1 className="flex items-center gap-2 text-2xl leading-tight font-bold tracking-tight text-ink-900">
+              <Icon name={FACILITY_TYPE_ICON[facility.type]} size={18} className="text-care-600" />
               {facility.name}
             </h1>
             <p className="mt-1 text-sm text-ink-700">
@@ -287,13 +291,11 @@ function FacilityDetail({ facility, onBack }: { facility: Facility; onBack: () =
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <h2 className="text-lg font-semibold text-ink-900">Services</h2>
+          <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Services</h2>
           <ul className="mt-2 space-y-1 text-sm text-ink-900">
             {(facility.kioskServices ?? facility.services).map((service) => (
               <li key={service} className="flex gap-2">
-                <span aria-hidden="true" className="text-ok-700">
-                  ✓
-                </span>
+                <Icon name="check" size={15} strokeWidth={2.4} className="mt-0.5 text-ok-600" />
                 {service}
               </li>
             ))}
@@ -301,7 +303,7 @@ function FacilityDetail({ facility, onBack }: { facility: Facility; onBack: () =
         </Card>
 
         <Card>
-          <h2 className="text-lg font-semibold text-ink-900">Doctors</h2>
+          <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Doctors</h2>
           {doctors.length ? (
             <ul className="mt-2 space-y-2">
               {doctors.map((doctor) => (
@@ -322,7 +324,7 @@ function FacilityDetail({ facility, onBack }: { facility: Facility; onBack: () =
         </Card>
 
         <Card>
-          <h2 className="text-lg font-semibold text-ink-900">Tests</h2>
+          <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Tests</h2>
           {facility.tests.length ? (
             <ul className="mt-2 space-y-2">
               {facility.tests.map((entry) => (
@@ -340,7 +342,7 @@ function FacilityDetail({ facility, onBack }: { facility: Facility; onBack: () =
         </Card>
 
         <Card>
-          <h2 className="text-lg font-semibold text-ink-900">Medicines</h2>
+          <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Medicines</h2>
           {facility.medicines.length ? (
             <ul className="mt-2 space-y-2">
               {facility.medicines.map((entry) => (
@@ -362,7 +364,7 @@ function FacilityDetail({ facility, onBack }: { facility: Facility; onBack: () =
 
         {facility.vaccines.length ? (
           <Card>
-            <h2 className="text-lg font-semibold text-ink-900">Vaccines</h2>
+            <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Vaccines</h2>
             <ul className="mt-2 space-y-2">
               {facility.vaccines.map((entry) => (
                 <li key={entry.itemId} className="flex flex-wrap items-center justify-between gap-2">

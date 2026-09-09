@@ -10,7 +10,7 @@ import { ErrorBoundary, Loading } from '@/components/ui/States'
 import { EmptyState } from '@/components/ui/States'
 import { LinkButton } from '@/components/ui/Button'
 import { Callout } from '@/components/ui/Callout'
-import { SectionHeading } from '@/components/ui/Card'
+import { PageHeader } from '@/components/ui/Card'
 import { useAppStore } from '@/store/useAppStore'
 import { currentUser } from '@/store/selectors'
 import { ROLE_HOME, ROLE_LABEL } from '@/services/permissions'
@@ -141,13 +141,19 @@ function RequireRole({ roles, children }: { roles: Role[]; children: ReactNode }
   const user = currentUser(store)
   if (roles.includes(user.role)) return <>{children}</>
   return (
-    <div className="space-y-4">
-      <SectionHeading>Not available for this role</SectionHeading>
-      <Callout tone="warn" icon="🔒" title={`You are signed in as ${ROLE_LABEL[user.role]}`}>
+    <div className="mx-auto max-w-2xl space-y-5 py-6">
+      <PageHeader
+        icon="lock"
+        iconTone="warn"
+        eyebrow="Access control"
+        title="Not available for this role"
+        description="Every dashboard in RuralCare AI is scoped to a role, so a signed-in account never sees data it is not authorised for."
+      />
+      <Callout tone="warn" title={`You are signed in as ${ROLE_LABEL[user.role]}`}>
         This dashboard is only for: {roles.map((role) => ROLE_LABEL[role]).join(', ')}. Use the
         account switcher in the header to change demo role.
       </Callout>
-      <LinkButton to={ROLE_HOME[user.role]} tone="primary">
+      <LinkButton to={ROLE_HOME[user.role]} tone="primary" size="lg">
         Go to my dashboard
       </LinkButton>
     </div>
@@ -164,8 +170,9 @@ function ScrollToTop() {
 
 function NotFoundPage() {
   return (
-    <EmptyState
-      icon="🧭"
+    <div className="mx-auto max-w-xl py-10">
+      <EmptyState
+      icon="compass"
       title="Page not found"
       body="This link does not exist in the prototype."
       action={
@@ -176,7 +183,8 @@ function NotFoundPage() {
           <LinkButton to="/ai">Ask the assistant</LinkButton>
         </>
       }
-    />
+      />
+    </div>
   )
 }
 

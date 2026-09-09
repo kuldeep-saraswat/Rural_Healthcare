@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import type { AiCard } from '@/services/ai/types'
 import { DoctorCard } from '@/components/cards/DoctorCard'
 import {
@@ -20,7 +20,8 @@ import {
 import { AlertCard, CampCard, EnvironmentCard } from '@/components/cards/PublicHealthCards'
 import { TriageCard } from '@/components/ai/TriageCard'
 import { Card } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
+import { Button, LinkButton } from '@/components/ui/Button'
+import { Icon, IconChip } from '@/components/ui/Icon'
 import { useAppStore } from '@/store/useAppStore'
 import { currentUser } from '@/store/selectors'
 import { useToast } from '@/components/ui/Toast'
@@ -34,7 +35,7 @@ import { summariseRecord } from '@/services/ai/decisionSupport'
 export function AiCardList({ cards }: { cards: AiCard[] }) {
   if (!cards.length) return null
   return (
-    <ul className="mt-3 space-y-3">
+    <ul className="mt-3.5 space-y-3">
       {cards.map((card, index) => (
         <AiCardRenderer key={`${card.kind}-${index}`} card={card} />
       ))}
@@ -159,12 +160,9 @@ function AiCardRenderer({ card }: { card: AiCard }) {
         <FollowUpCard
           followUp={followUp}
           actions={
-            <Link
-              to="/follow-ups"
-              className="inline-flex min-h-11 items-center rounded-card border border-hairline bg-white px-4 text-sm font-medium hover:bg-care-50"
-            >
+            <LinkButton to="/follow-ups" iconAfter={<Icon name="arrowRight" size={15} />}>
               View follow-up
-            </Link>
+            </LinkButton>
           }
         />
       )
@@ -185,15 +183,27 @@ function AiCardRenderer({ card }: { card: AiCard }) {
       const summary = summariseRecord(store, card.patientId)
       return (
         <Card as="li" className="list-none">
-          <h3 className="text-base font-semibold text-ink-900">{summary.headline}</h3>
-          <ul className="mt-2 space-y-1 text-sm text-ink-700">
-            {summary.lines.slice(0, 4).map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-          </ul>
-          <div className="mt-3">
+          <div className="flex items-start gap-3">
+            <IconChip name="record" tone="care" size="sm" />
+            <div className="min-w-0 flex-1">
+              <h3 className="text-[15px] font-semibold text-ink-900">{summary.headline}</h3>
+              <ul className="mt-2 space-y-1.5 text-sm text-ink-600">
+                {summary.lines.slice(0, 4).map((line) => (
+                  <li key={line} className="flex gap-2">
+                    <span
+                      aria-hidden="true"
+                      className="mt-2 h-1 w-1 shrink-0 rounded-full bg-ink-300"
+                    />
+                    <span className="leading-relaxed">{line}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <div className="mt-4">
             <Button
               tone="primary"
+              iconAfter={<Icon name="arrowRight" size={16} />}
               onClick={() => {
                 navigate('/records')
               }}
@@ -210,15 +220,18 @@ function AiCardRenderer({ card }: { card: AiCard }) {
       return (
         <Card as="li" className="list-none">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h3 className="text-base font-semibold text-ink-900">{card.label}</h3>
-              {card.description ? (
-                <p className="text-sm text-ink-500">{card.description}</p>
-              ) : null}
+            <div className="flex min-w-0 items-center gap-3">
+              <IconChip name="compass" tone="info" size="sm" />
+              <div className="min-w-0">
+                <h3 className="text-[15px] font-semibold text-ink-900">{card.label}</h3>
+                {card.description ? (
+                  <p className="mt-0.5 text-sm text-ink-500">{card.description}</p>
+                ) : null}
+              </div>
             </div>
             <Button
               tone="primary"
-              size="lg"
+              iconAfter={<Icon name="arrowRight" size={16} />}
               onClick={() => {
                 navigate(card.path)
               }}

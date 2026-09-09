@@ -5,9 +5,8 @@ import { buildTriage, detectRedFlags, detectSymptoms } from '@/services/ai/sympt
 import { suggestCareLevel } from '@/services/ai/decisionSupport'
 import { TriageCard } from '@/components/ai/TriageCard'
 import { DoctorCard } from '@/components/cards/DoctorCard'
-import { Badge } from '@/components/ui/Badge'
 import { Button, LinkButton } from '@/components/ui/Button'
-import { Card, SectionHeading } from '@/components/ui/Card'
+import { Card, PageHeader } from '@/components/ui/Card'
 import { Callout } from '@/components/ui/Callout'
 import { Field, FieldRow, Select, TextArea, TextInput } from '@/components/ui/Form'
 import { FlowStrip, StepHeader } from '@/components/ui/Timeline'
@@ -16,6 +15,7 @@ import { useToast } from '@/components/ui/Toast'
 import { useAppStore } from '@/store/useAppStore'
 import { availableDoctors, currentUser } from '@/store/selectors'
 import { formatDate } from '@/lib/utils'
+import { Icon } from '@/components/ui/Icon'
 
 const STEPS = [
   { label: 'Patient', hint: 'identify' },
@@ -99,16 +99,17 @@ export function AssistedPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <SectionHeading
-        sub={
+    <div className="space-y-6">
+      <PageHeader
+        icon="stethoscope"
+        eyebrow="Guided by a health worker"
+        title="Assisted healthcare mode"
+        description={
           kiosk
             ? `At ${kiosk.name}. A trained volunteer operates the screen for the patient.`
             : 'A health worker completes each step for a patient who cannot use the website alone.'
         }
-      >
-        Assisted healthcare mode
-      </SectionHeading>
+      />
 
       <Card>
         <FlowStrip steps={STEPS} activeIndex={step} />
@@ -128,21 +129,31 @@ export function AssistedPage() {
                     onClick={() => {
                       startSession(option.id)
                     }}
-                    className="flex w-full items-center justify-between gap-3 rounded-card border border-hairline bg-surface p-3 text-left hover:bg-care-50"
+                    className="group flex w-full items-center gap-3 rounded-card border border-hairline bg-surface p-3 text-left shadow-xs transition-colors hover:border-care-300 hover:bg-care-50"
                   >
-                    <span>
+                    <span
+                      aria-hidden="true"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink-100 text-[13px] font-bold text-ink-600 transition-colors group-hover:bg-care-100 group-hover:text-care-800"
+                    >
+                      {option.name.slice(0, 1)}
+                    </span>
+                    <span className="min-w-0 flex-1">
                       <span className="block font-semibold text-ink-900">{option.name}</span>
-                      <span className="block text-sm text-ink-500">
+                      <span className="block truncate text-sm text-ink-500">
                         {option.age} years · {option.village} · {option.mainIssue}
                       </span>
                     </span>
-                    <Badge tone="neutral">Select</Badge>
+                    <Icon
+                      name="chevronRight"
+                      size={18}
+                      className="shrink-0 text-ink-300 transition-colors group-hover:text-care-600"
+                    />
                   </button>
                 </li>
               ))}
             </ul>
           ) : (
-            <EmptyState icon="🧑‍🤝‍🧑" title="No patients assigned to this account" />
+            <EmptyState icon="users" title="No patients assigned to this account" />
           )}
           <div className="mt-4">
             <LinkButton to="/asha/patients">Register a new patient</LinkButton>
@@ -363,7 +374,7 @@ export function AssistedPage() {
                 <TriageCard result={triage} />
               </ul>
               {suggestion ? (
-                <Callout tone="info" icon="🧭" title="Suggested care level (decision support)">
+                <Callout tone="info" icon="compass" title="Suggested care level (decision support)">
                   <strong>{suggestion.label}</strong> · urgency {suggestion.urgency}.{' '}
                   {suggestion.rationale.join('; ')}. The health worker and doctor decide - this is
                   only a suggestion.
@@ -397,7 +408,7 @@ export function AssistedPage() {
               ))}
             </ul>
           ) : (
-            <EmptyState icon="👨‍⚕️" title="No doctor available for teleconsultation right now" />
+            <EmptyState icon="doctor" title="No doctor available for teleconsultation right now" />
           )}
           <div className="mt-4 flex flex-wrap gap-2">
             <Button
@@ -548,6 +559,7 @@ export function AssistedPage() {
               tone="primary"
               size="lg"
               disabled={followUpDone}
+              icon={<Icon name={followUpDone ? 'checkCircle' : 'calendarCheck'} size={16} />}
               onClick={() => {
                 store.createFollowUp({
                   patientId: patient.id,
@@ -562,12 +574,12 @@ export function AssistedPage() {
                 toast.show({ tone: 'ok', title: `Follow-up set for ${followUpDays} days` })
               }}
             >
-              {followUpDone ? 'Follow-up set ✓' : 'Set follow-up'}
+              {followUpDone ? 'Follow-up set' : 'Set follow-up'}
             </Button>
           </Card>
 
           <Card tone="ok">
-            <h2 className="text-lg font-semibold text-ink-900">Session summary</h2>
+            <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Session summary</h2>
             <ul className="mt-2 space-y-1 text-[15px] text-ink-900">
               <li>Patient: {patient.name} ({patient.age} years, {patient.village})</li>
               <li>Screening: {screeningId ? 'saved to record' : 'skipped'}</li>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Badge, PendingSyncBadge } from '@/components/ui/Badge'
 import { Button, LinkButton } from '@/components/ui/Button'
-import { Card, KeyValue, SectionHeading, StatTile } from '@/components/ui/Card'
+import { Card, KeyValue, StatTile, PageHeader, SectionHeading } from '@/components/ui/Card'
 import { Callout } from '@/components/ui/Callout'
 import { Dialog } from '@/components/ui/Dialog'
 import { Field, Select, TextArea, TextInput } from '@/components/ui/Form'
@@ -18,6 +18,7 @@ import { setOfflineSimulation } from '@/services/connectivity'
 import { readEssential, storageBackendName } from '@/services/offline/db'
 import { bucketFollowUp, currentUser, upcomingCamps } from '@/store/selectors'
 import { formatDate, formatDateTime } from '@/lib/utils'
+import { Icon, IconChip } from '@/components/ui/Icon'
 
 // ---------------------------------------------------------------------------
 // Referrals - including the drop-off prevention workflow
@@ -37,13 +38,16 @@ export function AshaReferralsPage() {
   const dropOffs = referrals.filter((r) => r.dropOffFlagged && r.status !== 'completed')
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="Track every referred patient until they actually reach the facility.">
-        Referrals
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="route"
+        eyebrow="Care coordination"
+        title="Referrals"
+        description="Track every referred patient until they actually reach the facility."
+      />
 
       {dropOffs.length ? (
-        <Callout tone="warn" icon="⚠️" title="Referral follow-up required">
+        <Callout tone="warn" icon="alert" title="Referral follow-up required">
           {dropOffs.length} patient(s) have not reached the facility by the expected date. Contact
           the family, arrange transport, mark them reached, or escalate.
         </Callout>
@@ -64,7 +68,7 @@ export function AshaReferralsPage() {
                   <>
                     {patient ? (
                       <Button
-                        icon="📞"
+                        icon={<Icon name="phone" size={16} />}
                         onClick={() => {
                           demo.call(patient.name, patient.phone)
                           store.recordReferralContact(
@@ -80,7 +84,7 @@ export function AshaReferralsPage() {
                     ) : null}
                     {patient ? (
                       <Button
-                        icon="💬"
+                        icon={<Icon name="send" size={16} />}
                         onClick={() => {
                           demo.message(patient.name, patient.phone)
                           store.recordReferralContact(
@@ -96,7 +100,7 @@ export function AshaReferralsPage() {
                     ) : null}
                     {facility ? (
                       <Button
-                        icon="🏥"
+                        icon={<Icon name="hospital" size={16} />}
                         onClick={() => {
                           demo.call(facility.name, facility.phone)
                         }}
@@ -142,12 +146,12 @@ export function AshaReferralsPage() {
           })}
         </ul>
       ) : (
-        <EmptyState icon="🔁" title="No referrals for your patients" />
+        <EmptyState icon="route" title="No referrals for your patients" />
       )}
 
       {referrals.some((r) => r.contactAttempts.length) ? (
         <Card>
-          <h2 className="text-lg font-semibold text-ink-900">Contact log</h2>
+          <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Contact log</h2>
           <ul className="mt-2 space-y-1 text-sm text-ink-700">
             {referrals.flatMap((referral) =>
               referral.contactAttempts.map((attempt, index) => (
@@ -186,36 +190,41 @@ export function AshaFollowUpsPage() {
   const visible = buckets[tab as keyof typeof buckets]
 
   return (
-    <div className="space-y-4">
-      <SectionHeading
-        sub="Diabetes, hypertension, TB, maternal, child, elderly and chronic disease programmes."
-        right={
+    <div className="space-y-6">
+      <PageHeader
+        icon="calendarCheck"
+        eyebrow="Care coordination"
+        title="Follow-ups"
+        description="Diabetes, hypertension, TB, maternal, child, elderly and chronic disease programmes."
+        actions={
           <Button
             tone="primary"
             onClick={() => {
               setAddFor('new')
             }}
+          
+            icon={<Icon name="plus" size={16} />}
           >
-            + Add follow-up
+            Add follow-up
           </Button>
         }
-      >
-        Follow-ups
-      </SectionHeading>
+      />
 
-      <div className="grid gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatTile
           label="Overdue"
-          value={`🔴 ${buckets.overdue.length}`}
+          value={buckets.overdue.length}
+          icon="alertCircle"
           tone={buckets.overdue.length ? 'danger' : 'default'}
         />
         <StatTile
           label="Due today"
-          value={`🟡 ${buckets.today.length}`}
+          value={buckets.today.length}
+          icon="calendar"
           tone={buckets.today.length ? 'warn' : 'default'}
         />
         <StatTile label="Upcoming" value={buckets.upcoming.length} tone="info" />
-        <StatTile label="Completed" value={`🟢 ${buckets.completed.length}`} tone="ok" />
+        <StatTile label="Completed" value={buckets.completed.length} icon="checkCircle" tone="ok" />
       </div>
 
       <Tabs
@@ -253,7 +262,7 @@ export function AshaFollowUpsPage() {
                       </Button>
                       {patient ? (
                         <Button
-                          icon="📞"
+                          icon={<Icon name="phone" size={16} />}
                           onClick={() => {
                             demo.call(patient.name, patient.phone)
                           }}
@@ -280,7 +289,7 @@ export function AshaFollowUpsPage() {
           })}
         </ul>
       ) : (
-        <EmptyState icon="📅" title="Nothing in this list" />
+        <EmptyState icon="calendar" title="Nothing in this list" />
       )}
 
       <AddFollowUpDialog
@@ -420,10 +429,13 @@ export function AshaHouseholdsPage() {
   const households = store.households.filter((h) => (asha?.householdIds ?? []).includes(h.id))
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub={`My villages: ${asha?.villagesCovered.join(', ') ?? '-'} (demo data only).`}>
-        My households
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="household"
+        eyebrow="Field work"
+        title="My households"
+        description={`My villages: ${asha?.villagesCovered.join(', ') ?? '-'} (demo data only).`}
+      />
 
       {households.length ? (
         <ul className="space-y-3">
@@ -446,7 +458,7 @@ export function AshaHouseholdsPage() {
               <Card as="li" key={household.id} className="list-none">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
-                    <h3 className="text-lg font-semibold text-ink-900">
+                    <h3 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">
                       {household.code} · {household.headName}
                     </h3>
                     <p className="text-sm text-ink-500">
@@ -470,7 +482,7 @@ export function AshaHouseholdsPage() {
                 </dl>
 
                 <div className="mt-3">
-                  <h4 className="text-sm font-semibold text-ink-700">Members</h4>
+                  <h4 className="text-[13px] font-semibold text-ink-700">Members</h4>
                   <ul className="mt-1 space-y-1 text-sm">
                     {members.map((member) => (
                       <li
@@ -501,7 +513,7 @@ export function AshaHouseholdsPage() {
           })}
         </ul>
       ) : (
-        <EmptyState icon="🏡" title="No households assigned" />
+        <EmptyState icon="household" title="No households assigned" />
       )}
     </div>
   )
@@ -536,27 +548,32 @@ export function AshaPreventivePage() {
   ]
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="Only actionable preventive work for your assigned patients.">
-        Preventive care
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="shieldCheck"
+        eyebrow="Care coordination"
+        title="Preventive care"
+        description="Only actionable preventive work for your assigned patients."
+      />
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
         <StatTile
           label="Overdue"
-          value={`🔴 ${overdue.length}`}
+          value={overdue.length}
+          icon="alertCircle"
           tone={overdue.length ? 'danger' : 'default'}
         />
         <StatTile
           label="Due today"
-          value={`🟡 ${dueToday.length}`}
+          value={dueToday.length}
+          icon="calendar"
           tone={dueToday.length ? 'warn' : 'default'}
         />
-        <StatTile label="Completed" value={`🟢 ${completed.length}`} tone="ok" />
+        <StatTile label="Completed" value={completed.length} icon="checkCircle" tone="ok" />
       </div>
 
       <Card>
-        <h2 className="text-lg font-semibold text-ink-900">Missed vaccination follow-ups</h2>
+        <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Missed vaccination follow-ups</h2>
         {vaccinesDue.length ? (
           <ul className="mt-2 space-y-2">
             {vaccinesDue.map((record) => {
@@ -606,7 +623,7 @@ export function AshaPreventivePage() {
       </Card>
 
       <Card>
-        <h2 className="text-lg font-semibold text-ink-900">Screening coverage</h2>
+        <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Screening coverage</h2>
         <p className="mt-1 text-sm text-ink-500">
           {screeningsThisMonth.length} screening(s) recorded by you · {myPatients.length} patient(s)
           assigned
@@ -648,10 +665,13 @@ export function AshaCampsPage() {
   const myPatients = store.patients.filter((p) => p.ashaId === user.ashaId)
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="Register your patients for camps and mobile medical units. Works offline.">
-        Medical camps
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="tent"
+        eyebrow="Field work"
+        title="Medical camps"
+        description="Register your patients for camps and mobile medical units. Works offline."
+      />
 
       {camps.length ? (
         <ul className="space-y-3">
@@ -680,7 +700,7 @@ export function AshaCampsPage() {
           })}
         </ul>
       ) : (
-        <EmptyState icon="⛺" title="No camps for your villages" />
+        <EmptyState icon="tent" title="No camps for your villages" />
       )}
 
       {camps.map((camp) => {
@@ -688,7 +708,7 @@ export function AshaCampsPage() {
         if (!registrations.length) return null
         return (
           <Card key={`reg-${camp.id}`}>
-            <h2 className="text-lg font-semibold text-ink-900">{camp.name} - registrations</h2>
+            <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">{camp.name} - registrations</h2>
             <ul className="mt-2 space-y-2">
               {registrations.map((registration) => {
                 const patient = store.patients.find((p) => p.id === registration.patientId)
@@ -809,19 +829,22 @@ export function AshaNearbyPage() {
   ]
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="Cached on this device so it opens even with no network.">
-        Nearby healthcare
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="pin"
+        eyebrow="Field work"
+        title="Nearby healthcare"
+        description="Cached on this device so it opens even with no network."
+      />
 
       {offline ? (
-        <Callout tone="warn" icon="📴" title="Showing cached facility data">
+        <Callout tone="warn" icon="cloudOff" title="Showing cached facility data">
           You are offline. Distances, timings and services are from the last cached copy.
         </Callout>
       ) : null}
 
       <Card>
-        <h2 className="text-lg font-semibold text-ink-900">Emergency contacts</h2>
+        <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Emergency contacts</h2>
         <ul className="mt-2 grid gap-1.5 text-sm sm:grid-cols-2">
           {contacts.map((contact) => (
             <li key={`${contact.label}-${contact.phone}`} className="flex justify-between gap-2">
@@ -857,19 +880,22 @@ export function AshaAlertsPage() {
   )
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub={`Alerts covering ${asha?.villagesCovered.join(', ') ?? 'your villages'}.`}>
-        Health alerts
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="megaphone"
+        eyebrow="Field work"
+        title="Health alerts"
+        description={`Alerts covering ${asha?.villagesCovered.join(', ') ?? 'your villages'}.`}
+      />
 
-      <Callout tone="neutral" icon="🧪" title="Demo alerts">
+      <Callout tone="neutral" icon="flask" title="Demo alerts">
         These are prototype public-health alerts and demo weather readings, not verified outbreak
         reports.
       </Callout>
 
       {readings.length ? (
         <Card>
-          <h2 className="text-lg font-semibold text-ink-900">Environment today</h2>
+          <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Environment today</h2>
           <ul className="mt-2 space-y-1 text-sm">
             {readings.map((reading) => (
               <li key={reading.village} className="flex flex-wrap justify-between gap-2">
@@ -890,7 +916,7 @@ export function AshaAlertsPage() {
           ))}
         </ul>
       ) : (
-        <EmptyState icon="📢" title="No alerts for your villages" />
+        <EmptyState icon="megaphone" title="No alerts for your villages" />
       )}
     </div>
   )
@@ -933,22 +959,31 @@ export function AshaOfflinePage() {
   }, [store.patients, store.facilities])
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="What you can do with no network, and what is waiting to sync.">
-        Offline data
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="cloudOff"
+        eyebrow="Field work"
+        title="Offline data"
+        description="What you can do with no network, and what is waiting to sync."
+      />
 
-      <Card tone={offline ? 'warn' : 'ok'}>
+      <Card tone={offline ? 'warn' : 'ok'} padding="lg">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-semibold text-ink-900">
+          <div className="flex items-start gap-3">
+            <IconChip
+              name={offline ? 'cloudOff' : store.syncState === 'syncing' ? 'sync' : 'wifi'}
+              tone={offline ? 'warn' : 'ok'}
+              size="lg"
+            />
+            <div>
+            <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">
               {offline
-                ? '🟠 Offline'
+                ? 'Working offline'
                 : store.syncState === 'syncing'
-                  ? '🔄 Syncing...'
+                  ? 'Syncing...'
                   : store.syncState === 'synced'
-                    ? '✓ Synced'
-                    : '🟢 Online'}
+                    ? 'Synced'
+                    : 'Online'}
             </h2>
             <p className="mt-1 text-sm text-ink-700">
               {offline
@@ -957,9 +992,12 @@ export function AshaOfflinePage() {
                   ? `${pending.length} action(s) ready to sync.`
                   : 'Everything is synced.'}
             </p>
+            </div>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button
+              tone={store.simulatedOffline ? 'primary' : 'default'}
+              icon={<Icon name={store.simulatedOffline ? 'wifi' : 'wifiOff'} size={16} />}
               onClick={() => {
                 setOfflineSimulation(!store.simulatedOffline)
               }}
@@ -968,15 +1006,17 @@ export function AshaOfflinePage() {
             </Button>
           </div>
         </div>
-        <Callout tone="neutral" className="mt-3" icon="🧪" title="Prototype sync">
+        <Callout tone="neutral" className="mt-3" icon="flask" title="Prototype sync">
           Sync is simulated inside this browser using{' '}
           <strong>IndexedDB (with a localStorage fallback)</strong>. Nothing is uploaded to a server.
         </Callout>
       </Card>
 
       <Card>
-        <h2 className="text-lg font-semibold text-ink-900">What works offline</h2>
-        <ul className="mt-2 grid gap-1.5 text-[15px] text-ink-900 sm:grid-cols-2">
+        <SectionHeading sub="Every one of these is available with no network at all." icon="checkCircle">
+          What works offline
+        </SectionHeading>
+        <ul className="grid gap-2 text-[15px] text-ink-800 sm:grid-cols-2">
           {[
             'Register a patient',
             'Enter basic patient information',
@@ -991,9 +1031,7 @@ export function AshaOfflinePage() {
             'View emergency contacts',
           ].map((item) => (
             <li key={item} className="flex gap-2">
-              <span aria-hidden="true" className="text-ok-700">
-                ✓
-              </span>
+              <Icon name="check" size={15} strokeWidth={2.4} className="mt-1 text-ok-600" />
               {item}
             </li>
           ))}
@@ -1001,7 +1039,9 @@ export function AshaOfflinePage() {
       </Card>
 
       <Card>
-        <h2 className="text-lg font-semibold text-ink-900">Sync queue</h2>
+        <SectionHeading sub="Actions saved on this device, and where each one has reached." icon="sync">
+          Sync queue
+        </SectionHeading>
         {queue.length ? (
           <ul className="mt-2 space-y-2">
             {queue.map((item) => (
@@ -1033,14 +1073,19 @@ export function AshaOfflinePage() {
             ))}
           </ul>
         ) : (
-          <p className="mt-2 text-sm text-ink-500">
-            Nothing queued. Actions taken while offline appear here.
-          </p>
+          <div className="mt-3">
+            <EmptyState
+              compact
+              icon="sync"
+              title="Nothing queued"
+              body="Actions you take while offline appear here, and sync automatically when the connection returns."
+            />
+          </div>
         )}
       </Card>
 
       <Card>
-        <h2 className="text-lg font-semibold text-ink-900">Save a field note</h2>
+        <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Save a field note</h2>
         <p className="mt-1 mb-2 text-sm text-ink-500">
           Notes are saved on the device and queued when you are offline.
         </p>
@@ -1088,7 +1133,7 @@ export function AshaOfflinePage() {
       </Card>
 
       <Card>
-        <h2 className="text-lg font-semibold text-ink-900">Cached records on this device</h2>
+        <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">Cached records on this device</h2>
         <p className="mt-1 text-sm text-ink-700">
           Read back from <strong>{storageBackendName()}</strong>: {cacheStats.patients} patient
           record(s), {cacheStats.facilities} facility(ies) and {cacheStats.contacts} emergency

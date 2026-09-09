@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Badge, DemoBadge } from '@/components/ui/Badge'
 import { Button, LinkButton } from '@/components/ui/Button'
-import { Card, SectionHeading } from '@/components/ui/Card'
+import { Card, PageHeader } from '@/components/ui/Card'
 import { Callout } from '@/components/ui/Callout'
 import { Field, TextArea } from '@/components/ui/Form'
 import { EmptyState } from '@/components/ui/States'
@@ -11,6 +11,7 @@ import { useDemoAction } from '@/components/DemoAction'
 import { useAppStore } from '@/store/useAppStore'
 import { currentPatient } from '@/store/selectors'
 import { cx } from '@/lib/utils'
+import { Icon } from '@/components/ui/Icon'
 
 /**
  * Simulated teleconsultation room.
@@ -47,7 +48,7 @@ export function ConsultPage() {
   if (!doctor) {
     return (
       <EmptyState
-        icon="👨‍⚕️"
+        icon="doctor"
         title="Doctor not found"
         body="This consultation link does not match any doctor in the demo data."
         action={
@@ -85,12 +86,15 @@ export function ConsultPage() {
   const secs = `${seconds % 60}`.padStart(2, '0')
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub={`${doctor.specialty} · ${facility?.name ?? ''}`}>
-        Consultation with {doctor.name}
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="video"
+        eyebrow="Teleconsultation"
+        title={`Consultation with ${doctor.name}`}
+        description={`${doctor.specialty} · ${facility?.name ?? ''}`}
+      />
 
-      <Callout tone="warn" icon="🎥" title="Simulated video consultation">
+      <Callout tone="warn" icon="video" title="Simulated video consultation">
         This prototype does not carry real audio or video. Nothing is recorded or transmitted. The
         room below shows the flow a real WebRTC consultation would follow.
       </Callout>
@@ -98,8 +102,15 @@ export function ConsultPage() {
       <Card className="overflow-hidden p-0">
         <div className="relative aspect-video w-full bg-ink-900">
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center text-white/80">
-            <span aria-hidden="true" className="text-4xl">
-              {phase === 'connected' ? '🩺' : phase === 'ended' ? '✅' : '⏳'}
+            <span
+              aria-hidden="true"
+              className="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 text-white ring-1 ring-white/15 ring-inset"
+            >
+              <Icon
+                name={phase === 'connected' ? 'stethoscope' : phase === 'ended' ? 'checkCircle' : 'clock'}
+                size={30}
+                strokeWidth={1.6}
+              />
             </span>
             <p className="text-lg font-semibold text-white">
               {phase === 'waiting'
@@ -138,7 +149,7 @@ export function ConsultPage() {
             <Button
               tone="primary"
               size="lg"
-              icon="🎥"
+              icon={<Icon name="video" size={16} />}
               onClick={() => {
                 setPhase('connected')
               }}
@@ -150,7 +161,7 @@ export function ConsultPage() {
             <>
               <Button
                 size="lg"
-                icon="🎙️"
+                icon={<Icon name="mic" size={16} />}
                 onClick={() => {
                   demo.custom(
                     'Demo control: microphone',
@@ -163,7 +174,7 @@ export function ConsultPage() {
               </Button>
               <Button
                 size="lg"
-                icon="📷"
+                icon={<Icon name="video" size={16} />}
                 onClick={() => {
                   demo.custom(
                     'Demo control: camera',
@@ -174,7 +185,7 @@ export function ConsultPage() {
               >
                 Camera
               </Button>
-              <Button tone="danger" size="lg" icon="📴" onClick={endConsultation}>
+              <Button tone="danger" size="lg" icon={<Icon name="cloudOff" size={16} />} onClick={endConsultation}>
                 End consultation
               </Button>
             </>
@@ -204,7 +215,7 @@ export function ConsultPage() {
       </Card>
 
       <Card>
-        <h2 className="text-lg font-semibold text-ink-900">What would you like to tell the doctor?</h2>
+        <h2 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">What would you like to tell the doctor?</h2>
         <p className="mt-1 text-sm text-ink-500">
           This is attached to the consultation record so the doctor can add notes and, if needed, a
           prescription or referral.

@@ -113,7 +113,7 @@ export function DemoActionProvider({ children }: { children: ReactNode }) {
       >
         <div className="space-y-3 text-[15px] text-ink-900">
           {state?.body}
-          <Callout tone="neutral" title="Prototype only" icon="🧪">
+          <Callout tone="neutral" title="Prototype only" icon="flask">
             {state?.realWorld ?? 'This action is simulated for the demo.'}
           </Callout>
         </div>

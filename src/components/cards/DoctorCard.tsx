@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { useDemoAction } from '@/components/DemoAction'
 import { useT } from '@/services/i18n'
+import { Icon } from '@/components/ui/Icon'
 
 export function DoctorCard({
   doctor,
@@ -26,7 +27,7 @@ export function DoctorCard({
     <Card as="li" className="list-none" tone={emergency && available ? 'danger' : 'default'}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <h3 className="text-lg font-semibold text-ink-900">{doctor.name}</h3>
+          <h3 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">{doctor.name}</h3>
           <p className="text-sm text-ink-700">{doctor.specialty}</p>
           {facility ? (
             <p className="mt-0.5 text-sm text-ink-500">
@@ -68,7 +69,7 @@ export function DoctorCard({
         <Button
           tone="default"
           size="lg"
-          icon="📞"
+          icon={<Icon name="phone" size={16} />}
           onClick={() => {
             demo.call(doctor.name, doctor.phone)
           }}
@@ -79,7 +80,7 @@ export function DoctorCard({
           <Button
             tone={available ? 'primary' : 'default'}
             size="lg"
-            icon="🎥"
+            icon={<Icon name="video" size={16} />}
             disabled={!available}
             onClick={() => {
               navigate(`/consult/${doctor.id}`)

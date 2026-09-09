@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Badge, DemoBadge } from '@/components/ui/Badge'
 import { Button, LinkButton } from '@/components/ui/Button'
-import { Card, KeyValue, SectionHeading, StatTile } from '@/components/ui/Card'
+import { Card, KeyValue, SectionHeading, StatTile, PageHeader, StatGrid } from '@/components/ui/Card'
 import { Callout } from '@/components/ui/Callout'
 import { BarList, Donut, Meter } from '@/components/ui/Charts'
 import { Dialog } from '@/components/ui/Dialog'
@@ -19,6 +19,7 @@ import {
 } from '@/services/ai/decisionSupport'
 import { MEDICINE_CATALOG, VACCINE_CATALOG } from '@/data/catalog'
 import { daysBetween, formatDate, pct } from '@/lib/utils'
+import { Icon } from '@/components/ui/Icon'
 
 const ADMIN_NOTE =
   'Admin accounts never see an identifiable patient record in this prototype - only counts and aggregates from fictional demo data.'
@@ -110,29 +111,34 @@ export function AdminOverviewPage() {
   const pressure = facilityPressure(store)
 
   return (
-    <div className="space-y-5">
-      <SectionHeading sub="District health office view. Aggregates only.">
-        Government / admin dashboard
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="dashboard"
+        eyebrow="District health office"
+        title="Government / admin dashboard"
+        description="District health office view. Aggregates only."
+      />
 
-      <Callout tone="neutral" icon="🔐" title="Privacy">
+      <Callout tone="neutral" icon="lock" title="Privacy">
         {ADMIN_NOTE}
       </Callout>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile label="Villages covered" value={villages.length} />
-        <StatTile label="Registered patients" value={store.patients.length} />
+      <StatGrid>
+        <StatTile label="Villages covered" value={villages.length} icon="household" />
+        <StatTile label="Registered patients" value={store.patients.length} icon="users" />
         <StatTile
           label="Ambulances available"
           value={`${ambulancesAvailable}/${store.ambulances.length}`}
+          icon="ambulance"
           tone={ambulancesAvailable ? 'ok' : 'danger'}
         />
         <StatTile
           label="Overdue follow-ups"
           value={overdueFollowUps}
+          icon="calendar"
           tone={overdueFollowUps ? 'danger' : 'ok'}
         />
-      </div>
+      </StatGrid>
 
       {/* Healthcare demand */}
       <Card>
@@ -162,29 +168,33 @@ export function AdminOverviewPage() {
         <SectionHeading sub="Shortages that patients feel immediately.">
           Resource availability
         </SectionHeading>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatGrid>
           <StatTile
             label="Facilities with no doctor available"
             value={doctorShortage.length}
+            icon="doctor"
             tone={doctorShortage.length ? 'danger' : 'ok'}
             hint={doctorShortage.map((f) => f.name).join(', ') || 'All covered'}
           />
           <StatTile
             label="Medicine stock alerts"
             value={medicineShortages.length}
+            icon="pill"
             tone={medicineShortages.length ? 'warn' : 'ok'}
           />
           <StatTile
             label="Vaccine stock alerts"
             value={vaccineShortages.length}
+            icon="syringe"
             tone={vaccineShortages.length ? 'warn' : 'ok'}
           />
           <StatTile
             label="Diagnostic gaps"
             value={testGaps.length}
+            icon="microscope"
             tone={testGaps.length ? 'warn' : 'ok'}
           />
-        </div>
+        </StatGrid>
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <div>
             <h3 className="mb-2 text-sm font-semibold text-ink-700">Beds and ICU</h3>
@@ -308,7 +318,7 @@ export function AdminOverviewPage() {
       {/* Camp analytics */}
       <Card>
         <SectionHeading sub="Camps, coverage and attendance.">Medical camp analytics</SectionHeading>
-        <div className="grid gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           <StatTile label="Camps" value={camps.length} />
           <StatTile
             label="Villages covered"
@@ -326,7 +336,7 @@ export function AdminOverviewPage() {
       {/* Preventive healthcare */}
       <Card>
         <SectionHeading sub="Where prevention is slipping.">Preventive healthcare</SectionHeading>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
           <StatTile
             label="Missed follow-ups"
             value={overdueFollowUps}
@@ -500,19 +510,22 @@ export function AdminDemandPage() {
   const predictions = predictDemand(store)
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="Village → demand → available resources → shortages. A demo visualisation to spot underserved areas.">
-        Healthcare demand map
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="map"
+        eyebrow="District planning"
+        title="Healthcare demand map"
+        description="Village → demand → available resources → shortages. A demo visualisation to spot underserved areas."
+      />
 
-      <Callout tone="neutral" icon="🧭" title="AI resource demand (decision support)">
+      <Callout tone="neutral" icon="compass" title="AI resource demand (decision support)">
         Next-week demand is projected from the open follow-ups and referrals in the demo data using
         a simple, explainable rule. {DECISION_SUPPORT_DISCLAIMER}
       </Callout>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <h2 className="mb-3 text-lg font-semibold text-ink-900">Current demand index</h2>
+          <h2 className="mb-3 text-lg leading-snug font-semibold tracking-tight text-ink-900">Current demand index</h2>
           <BarList
             ariaLabel="Current demand index by village"
             max={100}
@@ -524,7 +537,7 @@ export function AdminDemandPage() {
           />
         </Card>
         <Card>
-          <h2 className="mb-3 text-lg font-semibold text-ink-900">Projected next week</h2>
+          <h2 className="mb-3 text-lg leading-snug font-semibold tracking-tight text-ink-900">Projected next week</h2>
           <BarList
             ariaLabel="Projected demand index by village"
             max={100}
@@ -554,7 +567,7 @@ export function AdminDemandPage() {
           >
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
-                <h3 className="text-lg font-bold text-ink-900">{prediction.village.name}</h3>
+                <h3 className="text-lg leading-snug font-semibold tracking-tight text-ink-900">{prediction.village.name}</h3>
                 <p className="text-sm text-ink-500">
                   Population {prediction.village.population.toLocaleString('en-IN')} · access{' '}
                   {prediction.village.accessLevel}
@@ -578,12 +591,12 @@ export function AdminDemandPage() {
               </div>
             </div>
             <div className="mt-3">
-              <h4 className="text-sm font-semibold text-ink-700">Shortages</h4>
+              <h4 className="text-[13px] font-semibold text-ink-700">Shortages</h4>
               {prediction.shortages.length ? (
                 <ul className="mt-1 space-y-1 text-sm text-ink-900">
                   {prediction.shortages.map((shortage) => (
                     <li key={shortage} className="flex gap-2">
-                      <span aria-hidden="true">⚠️</span>
+                      <Icon name="alert" size={15} className="mt-0.5 shrink-0 text-warn-600" />
                       {shortage}
                     </li>
                   ))}
@@ -620,18 +633,21 @@ export function AdminResourcesPage() {
   const store = useAppStore()
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="District-wide overrides. Every change is visible to patients immediately.">
-        Resource controls
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="toolbox"
+        eyebrow="District planning"
+        title="Resource controls"
+        description="District-wide overrides. Every change is visible to patients immediately."
+      />
 
-      <Callout tone="info" icon="🔗" title="Connected demo">
+      <Callout tone="info" icon="externalLink" title="Connected demo">
         Toggle a doctor here and the patient-side doctor list changes. Change medicine or vaccine
         stock and the finders update. Mark an ambulance busy and emergency availability changes.
       </Callout>
 
       <Card>
-        <h2 className="mb-3 text-lg font-semibold text-ink-900">Doctors</h2>
+        <h2 className="mb-3 text-lg leading-snug font-semibold tracking-tight text-ink-900">Doctors</h2>
         <TableWrap caption="Doctor availability across the district">
           <thead>
             <Tr>
@@ -683,7 +699,7 @@ export function AdminResourcesPage() {
       </Card>
 
       <Card>
-        <h2 className="mb-3 text-lg font-semibold text-ink-900">Ambulances</h2>
+        <h2 className="mb-3 text-lg leading-snug font-semibold tracking-tight text-ink-900">Ambulances</h2>
         <TableWrap caption="Ambulance availability">
           <thead>
             <Tr>
@@ -723,7 +739,7 @@ export function AdminResourcesPage() {
       </Card>
 
       <Card>
-        <h2 className="mb-3 text-lg font-semibold text-ink-900">Beds and ICU</h2>
+        <h2 className="mb-3 text-lg leading-snug font-semibold tracking-tight text-ink-900">Beds and ICU</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           {store.facilities
             .filter((f) => f.beds.total > 0)
@@ -796,10 +812,13 @@ export function AdminReferralsPage() {
   const referrals = [...store.referrals].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="Aggregate view. Patient names are shown only because every record here is fictional demo data.">
-        Referral analytics
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="chart"
+        eyebrow="District planning"
+        title="Referral analytics"
+        description="Aggregate view. Patient names are shown only because every record here is fictional demo data."
+      />
 
       <TableWrap caption="All referrals in the demo dataset">
         <thead>
@@ -875,24 +894,27 @@ export function AdminAlertsPage() {
       .filter(Boolean)
 
   return (
-    <div className="space-y-4">
-      <SectionHeading
-        sub="Alerts reach patients and ASHA workers in the selected villages as notifications."
-        right={
+    <div className="space-y-6">
+      <PageHeader
+        icon="megaphone"
+        eyebrow="District response"
+        title="Public health alerts"
+        description="Alerts reach patients and ASHA workers in the selected villages as notifications."
+        actions={
           <Button
             tone="primary"
             onClick={() => {
               setOpen(true)
             }}
+          
+            icon={<Icon name="plus" size={16} />}
           >
-            + New alert
+            New alert
           </Button>
         }
-      >
-        Public health alerts
-      </SectionHeading>
+      />
 
-      <Callout tone="warn" icon="⚠️" title="Never claim an unverified outbreak">
+      <Callout tone="warn" icon="alert" title="Never claim an unverified outbreak">
         Every alert created here is published with a <strong>Demo public health alert</strong> badge
         and wording that avoids panic. In a real deployment only verified district health data would
         be published.
@@ -919,7 +941,7 @@ export function AdminAlertsPage() {
           ))}
         </ul>
       ) : (
-        <EmptyState icon="📢" title="No alerts published" />
+        <EmptyState icon="megaphone" title="No alerts published" />
       )}
 
       <Dialog
@@ -1130,12 +1152,15 @@ export function AdminCampsPage() {
   const camps = [...store.camps].sort((a, b) => a.date.localeCompare(b.date))
 
   return (
-    <div className="space-y-4">
-      <SectionHeading sub="All camps across the district, with registrations and attendance.">
-        Medical camps
-      </SectionHeading>
+    <div className="space-y-6">
+      <PageHeader
+        icon="tent"
+        eyebrow="District programmes"
+        title="Medical camps"
+        description="All camps across the district, with registrations and attendance."
+      />
 
-      <div className="grid gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatTile label="Camps" value={camps.length} />
         <StatTile label="Upcoming" value={camps.filter((c) => c.status !== 'completed').length} />
         <StatTile label="Registrations" value={store.campRegistrations.length} />
@@ -1168,7 +1193,7 @@ export function AdminCampsPage() {
           })}
         </ul>
       ) : (
-        <EmptyState icon="⛺" title="No camps in the demo data" />
+        <EmptyState icon="tent" title="No camps in the demo data" />
       )}
     </div>
   )
